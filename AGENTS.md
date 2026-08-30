@@ -1,9 +1,31 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Shortlytics — URL Shortener with Analytics
 
-# This is NOT the Next.js you know
+Portfolio app. Requirements and target architecture live in the sibling spec docs
+(`../docs/PRD-Shortlytics.md`, `../docs/TechSpec-Shortlytics.md`) — the TechSpec is
+written explicitly as context for AI-driven development and defines the Prisma schema,
+API design, security (anti-loop, rate limiting), and real-time analytics (SSE). Read it
+before implementing features.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Current state (important)
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+- Only the landing page is implemented (`app/page.tsx`, `app/layout.tsx`).
+- `lib/db.ts` (Prisma singleton) and `prisma/schema.prisma` are staged but have **no
+  Prisma migrations yet**. Auth, links API, redirect handler, analytics, SSE, and rate
+  limiting are all **not built** — do not assume they exist.
 
-<!-- END:nextjs-agent-rules -->
+## Toolchain facts
+
+- `Next.js 16.3.3` (very new, breaking changes) + `React 19.2.8` + `Prisma 6.19.3`
+  (provider `prisma-client-js`, PostgreSQL). See the auto-generated block above.
+- npm. Scripts: `npm run dev | build | start | lint`. `lint` is ESLint
+  (`eslint-config-next` core-web-vitals + typescript).
+- **No test runner is configured.** Verify work via `npm run lint` and `npm run build`;
+  don't invent a test command.
+- Path alias `@/*` resolves to the `shortlytics/` root, **not** the monorepo parent
+  `D:\Projects\1 - URL Shortener` (docs live outside this package under `../docs/`).
+  shadcn aliases: `@/components/ui`, `@/lib/utils`.
+- Styling: shadcn `base-nova` style backed by `@base-ui/react` (not Radix) — this is a
+  non-default shadcn setup. Tailwind v4 via `@tailwindcss/postcss`.
+- Prisma: `DATABASE_URL` comes from `.env` (see `.env.example`). Generate the client
+  and run a migration before any DB query; schema has unique `shortCode` and
+  `onDelete: Cascade` relations.
