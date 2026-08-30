@@ -1,26 +1,270 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-sans: var(--font-body);
+
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-200: var(--primary-200);
+  --color-primary-300: var(--primary-300);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+  --color-primary-800: var(--primary-800);
+  --color-primary-900: var(--primary-900);
+
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-pink: var(--accent-pink);
+
+  --color-success-100: var(--success-100);
+  --color-success-500: var(--success-500);
+  --color-error-100: var(--error-100);
+  --color-error-500: var(--error-500);
+  --color-warning-100: var(--warning-100);
+  --color-warning-500: var(--warning-500);
+
+  --color-neutral-0: var(--neutral-0);
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-950: var(--neutral-950);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-primary: var(--shadow-primary);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* 3.1 Primary Violet Scale */
+  --primary-50: #F5F3FF;
+  --primary-100: #EDE9FE;
+  --primary-200: #DDD6FE;
+  --primary-300: #C4B5FD;
+  --primary-400: #A78BFA;
+  --primary-500: #8B5CF6;
+  --primary-600: #7C3AED;
+  --primary-700: #6D28D9;
+  --primary-800: #5B21B6;
+  --primary-900: #4C1D95;
+
+  /* 3.2 Accents */
+  --accent-amber: #FBBF24;
+  --accent-pink: #F472B6;
+
+  /* 3.3 Semantic Colors */
+  --success-100: #DCFCE7;
+  --success-500: #22C55E;
+  --error-100: #FEE2E2;
+  --error-500: #EF4444;
+  --warning-100: #FEF3C7;
+  --warning-500: #F59E0B;
+
+  /* 3.4 Neutral Scale (Light Mode) */
+  --neutral-0: #FFFFFF;
+  --neutral-50: #FAFAFA;
+  --neutral-100: #F4F4F5;
+  --neutral-200: #E4E4E7;
+  --neutral-400: #A1A1AA;
+  --neutral-600: #52525B;
+  --neutral-800: #27272A;
+  --neutral-950: #09090B;
+
+  /* 3.6 Mapping ke shadcn/Tailwind CSS Variables */
+  --background: var(--neutral-0);
+  --foreground: var(--neutral-950);
+
+  --card: var(--neutral-50);
+  --card-foreground: var(--neutral-950);
+
+  --popover: var(--neutral-0);
+  --popover-foreground: var(--neutral-950);
+
+  --primary: var(--primary-600);
+  --primary-foreground: #FFFFFF;
+
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-800);
+
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-600);
+
+  --accent: var(--accent-amber);
+  --accent-foreground: var(--neutral-950);
+
+  --destructive: var(--error-500);
+  --destructive-foreground: #FFFFFF;
+
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--primary-500);
+
+  /* 6. Border Radius */
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* 7. Shadow & Elevation */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-primary: 0 8px 20px rgba(124, 58, 237, 0.25);
+
+  /* Sidebar Tokens */
+  --sidebar: var(--neutral-50);
+  --sidebar-foreground: var(--neutral-800);
+  --sidebar-primary: var(--primary-600);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--neutral-100);
+  --sidebar-accent-foreground: var(--neutral-950);
+  --sidebar-border: var(--neutral-200);
+  --sidebar-ring: var(--primary-500);
+
+  /* Charts */
+  --chart-1: #8B5CF6;
+  --chart-2: #FBBF24;
+  --chart-3: #F472B6;
+  --chart-4: #22C55E;
+  --chart-5: #38BDF8;
+}
+
+.dark {
+  /* 3.5 Neutral Scale (Dark Mode) */
+  --neutral-0-dark: #0A0A0B;
+  --neutral-50-dark: #18181B;
+  --neutral-100-dark: #27272A;
+  --neutral-200-dark: #3F3F46;
+  --neutral-400-dark: #71717A;
+  --neutral-600-dark: #A1A1AA;
+  --neutral-800-dark: #E4E4E7;
+  --neutral-950-dark: #FAFAFA;
+
+  --background: var(--neutral-0-dark);
+  --foreground: var(--neutral-950-dark);
+
+  --card: var(--neutral-50-dark);
+  --card-foreground: var(--neutral-950-dark);
+
+  --popover: var(--neutral-50-dark);
+  --popover-foreground: var(--neutral-950-dark);
+
+  /* Note dark mode: primary slightly brighter for contrast against dark bg */
+  --primary: var(--primary-500);
+  --primary-foreground: #FFFFFF;
+
+  --secondary: var(--neutral-100-dark);
+  --secondary-foreground: var(--neutral-800-dark);
+
+  --muted: var(--neutral-100-dark);
+  --muted-foreground: var(--neutral-600-dark);
+
+  --accent: var(--accent-amber);
+  --accent-foreground: var(--neutral-950);
+
+  --destructive: var(--error-500);
+  --destructive-foreground: #FFFFFF;
+
+  --border: var(--neutral-200-dark);
+  --input: var(--neutral-200-dark);
+  --ring: var(--primary-400);
+
+  /* Shadows for dark mode */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-primary: 0 8px 20px rgba(139, 92, 246, 0.35);
+
+  /* Sidebar */
+  --sidebar: var(--neutral-50-dark);
+  --sidebar-foreground: var(--neutral-800-dark);
+  --sidebar-primary: var(--primary-500);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--neutral-100-dark);
+  --sidebar-accent-foreground: var(--neutral-950-dark);
+  --sidebar-border: var(--neutral-200-dark);
+  --sidebar-ring: var(--primary-400);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display, var(--font-sans));
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .shadow-primary {
+    box-shadow: var(--shadow-primary);
+  }
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
