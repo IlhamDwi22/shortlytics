@@ -405,7 +405,7 @@ export default function LandingPage() {
                 <div
                   className={cn(
                     MONO,
-                    "mt-1 text-4xl font-semibold text-zinc-50 tabular-nums",
+                    "mt-1 text-3xl font-semibold text-zinc-50 tabular-nums sm:text-4xl",
                   )}
                 >
                   <CountUp to={totalClicks} />
@@ -423,7 +423,7 @@ export default function LandingPage() {
                 <div
                   className={cn(
                     MONO,
-                    "mt-1 text-4xl font-semibold text-lime-300 tabular-nums",
+                    "mt-1 text-3xl font-semibold text-lime-300 tabular-nums sm:text-4xl",
                   )}
                 >
                   <CountUp to={clicksToday} prefix="+" />
@@ -447,7 +447,7 @@ export default function LandingPage() {
                     <span
                       className={cn(
                         MONO,
-                        "w-28 truncate text-xs text-zinc-300",
+                        "w-20 shrink-0 truncate text-xs text-zinc-300 sm:w-28",
                       )}
                     >
                       {r.label}
@@ -476,7 +476,7 @@ export default function LandingPage() {
             </div>
 
             {/* device bars */}
-            <div className="grid grid-cols-3 gap-px border-t border-white/10 bg-white/5">
+            <div className="grid grid-cols-2 gap-px border-t border-white/10 bg-white/5 sm:grid-cols-3">
               {DEVICES.map((d) => (
                 <div key={d.label} className="bg-zinc-900/60 px-4 py-3">
                   <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">

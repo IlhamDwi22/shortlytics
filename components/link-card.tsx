@@ -113,10 +113,10 @@ export function LinkCard({
           <span className={cn(MONO, "text-[10px] uppercase tracking-wider text-zinc-600")}>
             {createdDate}
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <Button
               variant="ghost"
-              size="icon-xs"
+              size="icon-sm"
               onClick={copyToClipboard}
               className="text-zinc-500 hover:text-lime-300"
             >
@@ -129,14 +129,14 @@ export function LinkCard({
             <Link
               href={`/links/${id}`}
               className={cn(
-                "inline-flex size-6 items-center justify-center rounded text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300"
+                "inline-flex size-7 items-center justify-center rounded text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300"
               )}
             >
               <ExternalLink className="size-3.5" />
             </Link>
             <Button
               variant="ghost"
-              size="icon-xs"
+              size="icon-sm"
               onClick={() => setShowDeleteDialog(true)}
               className="text-zinc-500 hover:text-red-400"
             >

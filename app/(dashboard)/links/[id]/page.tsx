@@ -123,8 +123,8 @@ export default function LinkDetailPage() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-24 w-full" />
         <div className="grid gap-4 md:grid-cols-2">
-          <Skeleton className="h-[320px]" />
-          <Skeleton className="h-[320px]" />
+          <Skeleton className="h-[200px] sm:h-[320px]" />
+          <Skeleton className="h-[200px] sm:h-[320px]" />
         </div>
       </div>
     );
@@ -155,23 +155,25 @@ export default function LinkDetailPage() {
       <div className="rounded-lg border border-white/10 bg-zinc-900/50 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className={cn(MONO, "truncate text-lg font-semibold text-lime-300")}>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              <h1 className={cn(MONO, "min-w-0 truncate text-lg font-semibold text-lime-300")}>
                 {link.shortUrl.replace(/^https?:\/\//, "")}
               </h1>
-              <Badge variant={link.isActive ? "success" : "destructive"}>
-                {link.isActive ? "active" : "inactive"}
-              </Badge>
-              <div className="flex items-center gap-1.5">
-                <span
-                  className={cn(
-                    "size-1.5 rounded-full",
-                    isConnected ? "bg-lime-400 animate-pulse" : "bg-zinc-600"
-                  )}
-                />
-                <span className={cn(MONO, "text-[10px] text-zinc-600")}>
-                  {isConnected ? "live" : "offline"}
-                </span>
+              <div className="flex items-center gap-2">
+                <Badge variant={link.isActive ? "success" : "destructive"}>
+                  {link.isActive ? "active" : "inactive"}
+                </Badge>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "size-1.5 rounded-full",
+                      isConnected ? "bg-lime-400 animate-pulse" : "bg-zinc-600"
+                    )}
+                  />
+                  <span className={cn(MONO, "text-[10px] text-zinc-600")}>
+                    {isConnected ? "live" : "offline"}
+                  </span>
+                </div>
               </div>
             </div>
             <p className={cn(MONO, "mt-1 truncate text-xs text-zinc-500")}>
@@ -276,7 +278,7 @@ export default function LinkDetailPage() {
                   const pct = maxCount > 0 ? (r.count / maxCount) * 100 : 0;
                   return (
                     <li key={r.referrer} className="flex items-center gap-3">
-                      <span className={cn(MONO, "w-28 truncate text-xs text-zinc-300")}>
+                      <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-zinc-300 sm:w-28")}>
                         {r.referrer}
                       </span>
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
@@ -285,7 +287,7 @@ export default function LinkDetailPage() {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className={cn(MONO, "w-8 text-right text-xs tabular-nums text-zinc-400")}>
+                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-zinc-400")}>
                         {r.count}
                       </span>
                     </li>
@@ -311,7 +313,7 @@ export default function LinkDetailPage() {
                   const pct = maxCount > 0 ? (c.count / maxCount) * 100 : 0;
                   return (
                     <li key={c.country} className="flex items-center gap-3">
-                      <span className={cn(MONO, "w-28 truncate text-xs text-zinc-300")}>
+                      <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-zinc-300 sm:w-28")}>
                         {c.country}
                       </span>
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
@@ -320,7 +322,7 @@ export default function LinkDetailPage() {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className={cn(MONO, "w-8 text-right text-xs tabular-nums text-zinc-400")}>
+                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-zinc-400")}>
                         {c.count}
                       </span>
                     </li>

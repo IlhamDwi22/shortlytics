@@ -38,7 +38,7 @@ function CustomTooltip({
 export function ClicksOverTimeChart({ data }: ClicksOverTimeChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[280px] items-center justify-center text-sm text-zinc-500">
+      <div className="flex h-[200px] items-center justify-center text-sm text-zinc-500 sm:h-[280px]">
         No click data yet.
       </div>
     );
@@ -53,7 +53,7 @@ export function ClicksOverTimeChart({ data }: ClicksOverTimeChartProps) {
   }));
 
   return (
-    <div className="h-[280px] w-full">
+    <div className="h-[200px] w-full sm:h-[280px]">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={formatted} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
           <defs>

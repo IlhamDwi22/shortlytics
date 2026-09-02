@@ -42,7 +42,7 @@ function DialogContent({
   return (
     <div
       className={cn(
-        "rounded-lg border border-white/10 bg-zinc-900 p-6 shadow-lg",
+        "rounded-lg border border-white/10 bg-zinc-900 p-4 shadow-lg sm:p-6",
         className
       )}
       {...props}

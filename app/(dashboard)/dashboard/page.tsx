@@ -106,12 +106,12 @@ export default function DashboardPage() {
               key={i}
               className="rounded-lg border border-white/10 bg-zinc-900/50 p-4"
             >
-              <div className="flex items-start justify-between">
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-48" />
-                  <Skeleton className="h-3 w-72" />
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 max-w-[12rem]" />
+                  <Skeleton className="h-3 max-w-[16rem]" />
                 </div>
-                <Skeleton className="h-5 w-16 rounded-md" />
+                <Skeleton className="h-5 w-16 shrink-0 rounded-md" />
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-3">
                 <Skeleton className="h-3 w-20" />
@@ -125,7 +125,7 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : filteredLinks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-white/10 py-16">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-white/10 py-12 sm:py-16">
           <div className="flex size-12 items-center justify-center rounded-full bg-white/5">
             <Link2 className="size-6 text-zinc-600" />
           </div>
