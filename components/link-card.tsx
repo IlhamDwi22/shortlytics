@@ -78,7 +78,7 @@ export function LinkCard({
 
   return (
     <>
-      <div className="group rounded-lg border border-white/10 bg-zinc-900/50 p-4 transition-colors hover:border-white/20">
+      <div className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-border/50">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
@@ -92,12 +92,12 @@ export function LinkCard({
                 href={shortUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-zinc-600 transition-colors hover:text-zinc-400"
+                className="text-muted-foreground/60 transition-colors hover:text-muted-foreground"
               >
                 <ExternalLink className="size-3.5" />
               </Link>
             </div>
-            <p className={cn(MONO, "mt-1 truncate text-xs text-zinc-500")}>
+            <p className={cn(MONO, "mt-1 truncate text-xs text-muted-foreground")}>
               {originalUrl}
             </p>
           </div>
@@ -109,8 +109,8 @@ export function LinkCard({
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-3">
-          <span className={cn(MONO, "text-[10px] uppercase tracking-wider text-zinc-600")}>
+        <div className="mt-3 flex items-center justify-between border-t border-border/30 pt-3">
+          <span className={cn(MONO, "text-[10px] uppercase tracking-wider text-muted-foreground/70")}>
             {createdDate}
           </span>
           <div className="flex items-center gap-0.5">
@@ -118,7 +118,7 @@ export function LinkCard({
               variant="ghost"
               size="icon-sm"
               onClick={copyToClipboard}
-              className="text-zinc-500 hover:text-lime-300"
+              className="text-muted-foreground hover:text-lime-300"
             >
               {copied ? (
                 <Check className="size-3.5 text-lime-400" />
@@ -129,7 +129,7 @@ export function LinkCard({
             <Link
               href={`/links/${id}`}
               className={cn(
-                "inline-flex size-7 items-center justify-center rounded text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300"
+                "inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               )}
             >
               <ExternalLink className="size-3.5" />
@@ -138,7 +138,7 @@ export function LinkCard({
               variant="ghost"
               size="icon-sm"
               onClick={() => setShowDeleteDialog(true)}
-              className="text-zinc-500 hover:text-red-400"
+              className="text-muted-foreground hover:text-red-400"
             >
               <Trash2 className="size-3.5" />
             </Button>
@@ -154,8 +154,8 @@ export function LinkCard({
               Are you sure you want to delete this link? This action cannot be undone and all analytics data will be permanently removed.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-3 rounded-md border border-white/10 bg-zinc-950/60 p-3">
-            <p className={cn(MONO, "truncate text-xs text-zinc-400")}>{shortUrl}</p>
+          <div className="mt-3 rounded-md border border-border bg-background/60 p-3">
+            <p className={cn(MONO, "truncate text-xs text-muted-foreground")}>{shortUrl}</p>
           </div>
           <DialogFooter>
             <Button

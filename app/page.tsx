@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { RollingText } from "@/components/rolling-text";
 import { CountUp, LiveDot, Reveal } from "@/components/live";
 import { cn } from "@/lib/utils";
 
@@ -94,9 +94,9 @@ export default function LandingPage() {
   return (
     /* Landing is deliberately pinned to the dark "data instrument" shell,
        independent of the app-level theme (dashboard/auth honor system pref). */
-    <div className="dark flex min-h-screen flex-col bg-zinc-950 text-zinc-100 selection:bg-lime-400/30 selection:text-lime-200 [color-scheme:dark]">
+    <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-lime-400/30 selection:text-lime-200">
       {/* 1 · Nav */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-zinc-950/80 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="group flex items-center gap-2.5">
             <span
@@ -111,7 +111,7 @@ export default function LandingPage() {
             <span
               className={cn(
                 MONO,
-                "text-sm font-semibold tracking-tight text-zinc-100",
+                "text-sm font-semibold tracking-tight text-foreground",
               )}
             >
               shortlytics
@@ -138,7 +138,6 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             {session?.user ? (
               <Link
                 href="/dashboard"
@@ -156,7 +155,7 @@ export default function LandingPage() {
                   href="/login"
                   className={cn(
                     buttonVariants({ size: "sm", variant: "ghost" }),
-                    "hidden rounded-md text-zinc-300 hover:bg-white/5 hover:text-white sm:inline-flex",
+                    "hidden rounded-md text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex",
                   )}
                 >
                   Log in
@@ -168,7 +167,7 @@ export default function LandingPage() {
                     "rounded-md bg-lime-400 font-medium text-zinc-950 hover:bg-lime-300",
                   )}
                 >
-                  Get started
+                  <RollingText>Get started</RollingText>
                   <ArrowUpRight className="ml-1 size-3.5" />
                 </Link>
               </>
@@ -190,7 +189,7 @@ export default function LandingPage() {
           <div
             className={cn(
               MONO,
-              "inline-flex w-fit items-center gap-2 rounded border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-lime-300",
+              "inline-flex w-fit items-center gap-2 rounded border border-border bg-muted/50 px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-lime-300",
             )}
           >
             <Radio className="size-3 animate-pulse" />
@@ -198,7 +197,7 @@ export default function LandingPage() {
           </div>
 
           <h1
-            className="mt-6 grid w-full font-display text-4xl font-bold leading-[1.05] tracking-tight text-zinc-50 sm:text-5xl lg:text-[3.4rem]"
+            className="mt-6 grid w-full font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]"
           >
             {/* invisible placeholder — holds final height */}
             <span className="invisible col-start-1 row-start-1 select-none" aria-hidden>
@@ -272,7 +271,7 @@ export default function LandingPage() {
             </motion.span>
           </h1>
 
-          <p className="mt-5 max-w-md text-base leading-relaxed text-zinc-400">
+          <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
             A developer-grade URL shortener with live analytics. Watch clicks,
             devices, and referrers arrive the second they happen — free,
             transparent, no paywall.
@@ -281,13 +280,13 @@ export default function LandingPage() {
           {/* Working shorten console */}
           <form
             onSubmit={submit}
-            className="mt-8 rounded-lg border border-white/10 bg-zinc-900/60 p-1.5 focus-within:border-lime-400/50"
+            className="mt-8 rounded-lg border border-border bg-card p-1.5 focus-within:border-lime-400/50"
           >
             <div className="flex flex-col gap-2 sm:flex-row">
               <div className="flex flex-1 items-center gap-2 px-3">
-                <span className={cn(MONO, "flex items-center gap-1 text-xs text-zinc-500")}>
-                  <span className="text-lime-300">$</span>
-                </span>
+                <span className={cn(MONO, "flex items-center gap-1 text-xs text-muted-foreground")}>
+                   <span className="text-lime-300">$</span>
+                 </span>
                 <Input
                   value={url}
                   onChange={(e) => {
@@ -296,7 +295,7 @@ export default function LandingPage() {
                   }}
                   placeholder="paste://your-long-url-here"
                   aria-label="Paste your long URL"
-                  className="h-11 border-0 bg-transparent p-0 font-mono text-sm text-zinc-100 shadow-none placeholder:text-zinc-600 focus-visible:ring-0 dark:border-0 dark:bg-transparent"
+                  className="h-11 border-0 bg-transparent p-0 font-mono text-sm text-foreground shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-0"
                 />
               </div>
               <Button
@@ -305,14 +304,14 @@ export default function LandingPage() {
                 disabled={state === "loading"}
                 className="h-11 rounded-md bg-lime-400 px-5 font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98]"
               >
-                {state === "loading" ? "Hashing…" : "Shorten"}
+                {state === "loading" ? "Hashing…" : <RollingText>Shorten</RollingText>}
                 <ArrowUpRight className="ml-1.5 size-4" />
               </Button>
             </div>
 
-            <div className="mt-1 min-h-[44px] border-t border-white/5 px-3 pt-2">
+            <div className="mt-1 min-h-[44px] border-t border-border/30 px-3 pt-2">
               {state === "idle" && (
-                <p className={cn(MONO, "text-[11px] text-zinc-600")}>
+                <p className={cn(MONO, "text-[11px] text-muted-foreground/70")}>
                   {"// 7-char base62 · CSPRNG · anti-loop guarded"}
                 </p>
               )}
@@ -331,7 +330,7 @@ export default function LandingPage() {
                     onClick={copy}
                     size="sm"
                     variant="ghost"
-                    className="rounded text-[11px] uppercase tracking-wide text-zinc-400 hover:bg-white/5 hover:text-lime-300"
+                    className="rounded text-[11px] uppercase tracking-wide text-muted-foreground hover:bg-muted hover:text-lime-300"
                   >
                     {copied ? (
                       <Check className="mr-1 size-3.5 text-lime-400" />
@@ -344,8 +343,8 @@ export default function LandingPage() {
               )}
               {state === "loading" && (
                 <div className="flex items-center gap-2">
-                  <span className="size-3 animate-spin rounded-full border border-zinc-600 border-t-lime-400" />
-                  <span className={cn(MONO, "text-xs text-zinc-500")}>
+                  <span className="size-3 animate-spin rounded-full border border-muted-foreground/40 border-t-lime-400" />
+                   <span className={cn(MONO, "text-xs text-muted-foreground")}>
                     generating unique code…
                   </span>
                 </div>
@@ -354,14 +353,14 @@ export default function LandingPage() {
           </form>
 
           {/* trust rail */}
-          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 pt-5">
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-5">
             {[
               ["<300ms", "redirect"],
               ["open", "source"],
               ["no", "paywall"],
             ].map(([n, l]) => (
-              <span key={l} className={cn(MONO, "text-xs text-zinc-500")}>
-                <span className="font-semibold text-zinc-200">{n}</span> {l}
+              <span key={l} className={cn(MONO, "text-xs text-muted-foreground")}>
+                <span className="font-semibold text-foreground">{n}</span> {l}
               </span>
             ))}
           </div>
@@ -369,14 +368,14 @@ export default function LandingPage() {
 
         {/* Right — live instrument panel */}
         <Reveal delay={0.08} y={16} id="analytics" className="lg:col-span-6">
-          <figure className="relative rounded-lg border border-white/10 bg-zinc-900/50">
+          <figure className="relative rounded-lg border border-border bg-card">
             {/* panel header */}
-            <figcaption className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+            <figcaption className="flex items-center justify-between border-b border-border px-4 py-2.5">
               <div className="flex items-center gap-1.5">
-                <span className="size-2 rounded-full bg-zinc-700" />
-                <span className="size-2 rounded-full bg-zinc-700" />
-                <span className="size-2 rounded-full bg-zinc-700" />
-                <span className={cn(MONO, "ml-2 text-[11px] text-zinc-500")}>
+                <span className="size-2 rounded-full bg-muted-foreground/40" />
+                <span className="size-2 rounded-full bg-muted-foreground/40" />
+                <span className="size-2 rounded-full bg-muted-foreground/40" />
+                <span className={cn(MONO, "ml-2 text-[11px] text-muted-foreground")}>
                   shortlytics.app/analytics
                 </span>
               </div>
@@ -392,12 +391,12 @@ export default function LandingPage() {
             </figcaption>
 
             {/* live counters */}
-            <div className="grid grid-cols-2 divide-x divide-y divide-white/5">
+            <div className="grid grid-cols-2 divide-x divide-y divide-border/30">
               <div className="p-4">
                 <span
                   className={cn(
                     MONO,
-                    "text-[10px] uppercase tracking-[0.16em] text-zinc-500",
+                    "text-[10px] uppercase tracking-[0.16em] text-muted-foreground",
                   )}
                 >
                   total clicks
@@ -405,7 +404,7 @@ export default function LandingPage() {
                 <div
                   className={cn(
                     MONO,
-                    "mt-1 text-3xl font-semibold text-zinc-50 tabular-nums sm:text-4xl",
+                    "mt-1 text-3xl font-semibold text-foreground tabular-nums sm:text-4xl",
                   )}
                 >
                   <CountUp to={totalClicks} />
@@ -415,7 +414,7 @@ export default function LandingPage() {
                 <span
                   className={cn(
                     MONO,
-                    "text-[10px] uppercase tracking-[0.16em] text-zinc-500",
+                    "text-[10px] uppercase tracking-[0.16em] text-muted-foreground",
                   )}
                 >
                   today
@@ -432,7 +431,7 @@ export default function LandingPage() {
             </div>
 
             {/* referrer feed */}
-            <div className="border-t border-white/10 px-4 py-3">
+            <div className="border-t border-border px-4 py-3">
               <span
                 className={cn(
                   MONO,
@@ -447,14 +446,14 @@ export default function LandingPage() {
                     <span
                       className={cn(
                         MONO,
-                        "w-20 shrink-0 truncate text-xs text-zinc-300 sm:w-28",
+                        "w-20 shrink-0 truncate text-xs text-foreground/70 sm:w-28",
                       )}
                     >
                       {r.label}
                     </span>
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/50">
                       <motion.div
-                        className="h-full rounded-full bg-zinc-500"
+                        className="h-full rounded-full bg-muted-foreground/50"
                         initial={{ width: 0 }}
                         whileInView={{ width: `${r.pct}%` }}
                         viewport={{ once: true }}
@@ -464,7 +463,7 @@ export default function LandingPage() {
                     <span
                       className={cn(
                         MONO,
-                        "w-8 text-right text-xs tabular-nums text-zinc-400",
+                        "w-8 text-right text-xs tabular-nums text-muted-foreground",
                       )}
                     >
                       {r.pct}%
@@ -476,17 +475,17 @@ export default function LandingPage() {
             </div>
 
             {/* device bars */}
-            <div className="grid grid-cols-2 gap-px border-t border-white/10 bg-white/5 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-px border-t border-border bg-muted/30 sm:grid-cols-3">
               {DEVICES.map((d) => (
-                <div key={d.label} className="bg-zinc-900/60 px-4 py-3">
-                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">
+                <div key={d.label} className="bg-card px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     <d.icon className="size-3 text-lime-300" />
                     {d.label}
                   </div>
                   <div
                     className={cn(
                       MONO,
-                      "mt-1 text-lg font-semibold text-zinc-100 tabular-nums",
+                      "mt-1 text-lg font-semibold text-foreground tabular-nums",
                     )}
                   >
                     {d.pct}%
@@ -499,23 +498,23 @@ export default function LandingPage() {
       </section>
 
       {/* 3 · Data rail */}
-      <section className="border-y border-white/10">
+      <section className="border-y border-border">
         <Reveal>
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-white/5 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-muted/30 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
             {[
               ["62⁷", "unique code space"],
               ["<300ms", "redirect latency"],
               ["7-char", "base62 short codes"],
               ["0", "paywalls, ever"],
             ].map(([n, l]) => (
-              <div key={l} className="bg-zinc-950 px-2 py-6 text-center">
+              <div key={l} className="bg-background px-2 py-6 text-center">
                 <div className={cn(MONO, "text-2xl font-bold text-lime-300")}>
                   {n}
                 </div>
                 <div
                   className={cn(
                     MONO,
-                    "mt-1 text-[10px] uppercase tracking-[0.16em] text-zinc-500",
+                    "mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground",
                   )}
                 >
                   {l}
@@ -540,7 +539,7 @@ export default function LandingPage() {
           >
             Signals, not vanity metrics
           </span>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Built around the click.
           </h2>
         </Reveal>
@@ -548,31 +547,31 @@ export default function LandingPage() {
         <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-6">
           {/* large live cell */}
           <Reveal className="md:col-span-4">
-            <div className="flex h-full flex-col justify-between rounded-lg border border-white/10 bg-zinc-900/40 p-6 transition-colors hover:border-lime-400/30">
+            <div className="flex h-full flex-col justify-between rounded-lg border border-border bg-card p-6 transition-colors hover:border-lime-400/30">
               <div className="flex items-center gap-2">
                 <Activity className="size-4 text-lime-300" />
                 <h3
                   className={cn(
                     MONO,
-                    "text-sm uppercase tracking-wide text-zinc-200",
+                    "text-sm uppercase tracking-wide text-foreground/80",
                   )}
                 >
                   Real-time without the work
                 </h3>
               </div>
               <div>
-                <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-400">
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
                   Every click lands in your dashboard instantly via Server-Sent
                   Events. No refresh, no polling, no Websocket plumbing to babysit.
                 </p>
                 <div
                   className={cn(
                     MONO,
-                    "mt-6 flex items-center gap-2 text-xs text-zinc-500",
+                    "mt-6 flex items-center gap-2 text-xs text-muted-foreground",
                   )}
                 >
                   <span className="text-lime-300">$</span>
-                  <code className="rounded bg-white/5 px-2 py-1 text-zinc-300">
+                  <code className="rounded bg-muted/50 px-2 py-1 text-foreground/70">
                     eventSource.onmessage
                   </code>
                   <span>→ re-render</span>
@@ -583,13 +582,13 @@ export default function LandingPage() {
 
           {/* geography cell */}
           <Reveal delay={0.06} className="md:col-span-2">
-            <div className="flex h-full flex-col justify-between rounded-lg border border-white/10 bg-zinc-900/40 p-6 transition-colors hover:border-lime-400/30">
+            <div className="flex h-full flex-col justify-between rounded-lg border border-border bg-card p-6 transition-colors hover:border-lime-400/30">
               <Globe2 className="size-5 text-lime-300" />
               <div className="mt-6">
-                <h3 className="font-display text-lg font-semibold text-zinc-50">
+                <h3 className="font-display text-lg font-semibold text-foreground">
                   Where it&apos;s read
                 </h3>
-                <p className="mt-1 text-sm text-zinc-400">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Country, city, and device breakdown per link — masked IPs, clean
                   privacy.
                 </p>
@@ -599,13 +598,13 @@ export default function LandingPage() {
 
           {/* instant cell */}
           <Reveal className="md:col-span-2">
-            <div className="flex h-full flex-col justify-between rounded-lg border border-white/10 bg-zinc-900/40 p-6 transition-colors hover:border-lime-400/30">
+            <div className="flex h-full flex-col justify-between rounded-lg border border-border bg-card p-6 transition-colors hover:border-lime-400/30">
               <Zap className="size-5 text-lime-300" />
               <div className="mt-6">
-                <h3 className="font-display text-lg font-semibold text-zinc-50">
+                <h3 className="font-display text-lg font-semibold text-foreground">
                   Instant redirect
                 </h3>
-                <p className="mt-1 text-sm text-zinc-400">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Straight 302 to your target. No interstitial, no ad wall.
                 </p>
               </div>
@@ -614,15 +613,15 @@ export default function LandingPage() {
 
           {/* security cell */}
           <Reveal delay={0.06} className="md:col-span-4">
-            <div className="rounded-lg border border-white/10 bg-zinc-900/40 p-6 transition-colors hover:border-lime-400/30">
+            <div className="rounded-lg border border-border bg-card p-6 transition-colors hover:border-lime-400/30">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex gap-3">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-lime-300" />
                   <div>
-                    <h3 className="font-display text-base font-semibold text-zinc-50">
+                    <h3 className="font-display text-base font-semibold text-foreground">
                       Hardened by default
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                       CSPRNG base62 codes, infinite-loop detection, and
                       per-endpoint rate limiting baked in from day one.
                     </p>
@@ -631,18 +630,18 @@ export default function LandingPage() {
                 <div
                   className={cn(
                     MONO,
-                    "space-y-1.5 rounded border border-white/10 bg-zinc-950/60 p-3 text-xs",
+                    "space-y-1.5 rounded border border-border bg-background/60 p-3 text-xs",
                   )}
                 >
-                  <p className="text-zinc-500">{"// security smoke test"}</p>
-                  <p className="text-zinc-300">
+                  <p className="text-muted-foreground">{"// security smoke test"}</p>
+                  <p className="text-foreground/70">
                     <span className="text-lime-300">✓</span> javascript: blocked
                   </p>
-                  <p className="text-zinc-300">
+                  <p className="text-foreground/70">
                     <span className="text-lime-300">✓</span> bit.ly rejected
                     (anti-loop)
                   </p>
-                  <p className="text-zinc-300">
+                  <p className="text-foreground/70">
                     <span className="text-lime-300">✓</span> 21st req/min → 429
                   </p>
                 </div>
@@ -653,7 +652,7 @@ export default function LandingPage() {
       </section>
 
       {/* 5 · How it works */}
-      <section id="how-it-works" className="border-t border-white/10">
+      <section id="how-it-works" className="border-t border-border">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <Reveal>
             <span
@@ -664,7 +663,7 @@ export default function LandingPage() {
             >
               Pipeline
             </span>
-            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">
+            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               Three lines, then watch it move.
             </h2>
           </Reveal>
@@ -688,7 +687,7 @@ export default function LandingPage() {
               ],
             ].map(([n, t, d], i) => (
               <Reveal key={n} delay={i * 0.08}>
-                <div className="group relative h-full rounded-lg border border-white/10 bg-zinc-900/40 p-6 transition-colors hover:border-lime-400/30">
+                <div className="group relative h-full rounded-lg border border-border bg-card p-6 transition-colors hover:border-lime-400/30">
                   <div className="flex items-baseline justify-between">
                     <span
                       className={cn(MONO, "text-2xl font-bold text-lime-300/80")}
@@ -696,13 +695,13 @@ export default function LandingPage() {
                       {n}
                     </span>
                     {i < 2 && (
-                      <ArrowUpRight className="size-4 text-zinc-700 transition-colors group-hover:text-lime-300" />
+                      <ArrowUpRight className="size-4 text-muted-foreground/40 transition-colors group-hover:text-lime-300" />
                     )}
                   </div>
-                  <h3 className="mt-5 font-display text-lg font-semibold text-zinc-50">
+                  <h3 className="mt-5 font-display text-lg font-semibold text-foreground">
                     {t}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {d}
                   </p>
                 </div>
@@ -715,7 +714,7 @@ export default function LandingPage() {
       {/* 6 · Final CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
         <Reveal>
-          <div className="relative overflow-hidden rounded-lg border border-lime-400/30 bg-zinc-900/60 px-6 py-14 text-center sm:px-12">
+          <div className="relative overflow-hidden rounded-lg border border-lime-400/30 bg-card px-6 py-14 text-center sm:px-12">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_bottom,rgba(163,230,53,0.12),transparent_60%)]"
@@ -728,7 +727,7 @@ export default function LandingPage() {
           >
             {session?.user ? "Your links, on tap" : "Free. Open. Real-time."}
           </p>
-          <h2 className="mx-auto mt-4 max-w-xl font-display text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">
+          <h2 className="mx-auto mt-4 max-w-xl font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Put your links on a live feed.
           </h2>
           <div className="mt-7 flex justify-center">
@@ -739,7 +738,7 @@ export default function LandingPage() {
                 "rounded-md bg-lime-400 px-7 py-3 text-base font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98]",
               )}
             >
-              {session?.user ? "Open dashboard" : "Create account"}
+              {session?.user ? "Open dashboard" : <RollingText>Create account</RollingText>}
               <ArrowUpRight className="ml-2 size-4" />
             </Link>
           </div>
@@ -748,7 +747,7 @@ export default function LandingPage() {
       </section>
 
       {/* 7 · Footer */}
-      <footer className="border-t border-white/10">
+      <footer className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <span
@@ -759,11 +758,11 @@ export default function LandingPage() {
             >
               s/fn
             </span>
-            <span className={cn(MONO, "text-xs text-zinc-500")}>
+            <span className={cn(MONO, "text-xs text-muted-foreground")}>
               © 2026 shortlytics
             </span>
           </div>
-          <p className={cn(MONO, "text-xs text-zinc-600")}>
+          <p className={cn(MONO, "text-xs text-muted-foreground/70")}>
             Next.js 16 · PostgreSQL · Prisma 7 · Tailwind v4
           </p>
         </div>

@@ -144,7 +144,7 @@ export default function LinkDetailPage() {
         href="/dashboard"
         className={cn(
           MONO,
-          "inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-zinc-500 transition-colors hover:text-zinc-300"
+          "inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
         )}
       >
         <ArrowLeft className="size-3.5" />
@@ -152,7 +152,7 @@ export default function LinkDetailPage() {
       </Link>
 
       {/* Link header */}
-      <div className="rounded-lg border border-white/10 bg-zinc-900/50 p-5">
+      <div className="rounded-lg border border-border bg-card p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -167,16 +167,16 @@ export default function LinkDetailPage() {
                   <span
                     className={cn(
                       "size-1.5 rounded-full",
-                      isConnected ? "bg-lime-400 animate-pulse" : "bg-zinc-600"
+                      isConnected ? "bg-lime-400 animate-pulse" : "bg-muted-foreground/40"
                     )}
                   />
-                  <span className={cn(MONO, "text-[10px] text-zinc-600")}>
+                  <span className={cn(MONO, "text-[10px] text-muted-foreground/70")}>
                     {isConnected ? "live" : "offline"}
                   </span>
                 </div>
               </div>
             </div>
-            <p className={cn(MONO, "mt-1 truncate text-xs text-zinc-500")}>
+            <p className={cn(MONO, "mt-1 truncate text-xs text-muted-foreground")}>
               → {link.originalUrl}
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function LinkDetailPage() {
               variant="outline"
               size="sm"
               onClick={copyToClipboard}
-              className="border-white/10 text-zinc-300 hover:bg-white/5 hover:text-zinc-100"
+              className="border-border text-foreground/70 hover:bg-muted hover:text-foreground"
             >
               {copied ? (
                 <Check className="mr-1.5 size-3.5 text-lime-400" />
@@ -199,7 +199,7 @@ export default function LinkDetailPage() {
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                "inline-flex h-7 items-center gap-1.5 rounded-md border border-white/10 px-2.5 text-[11px] text-zinc-400 transition-colors hover:bg-white/5 hover:text-zinc-200"
+                "inline-flex h-7 items-center gap-1.5 rounded-md border border-border px-2.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               )}
             >
               <ExternalLink className="size-3.5" />
@@ -209,20 +209,20 @@ export default function LinkDetailPage() {
         </div>
 
         {/* Live click counter */}
-        <div className="mt-5 flex items-center gap-6 border-t border-white/5 pt-5">
+        <div className="mt-5 flex items-center gap-6 border-t border-border/30 pt-5">
           <div>
-            <span className={cn(MONO, "text-[10px] uppercase tracking-[0.16em] text-zinc-500")}>
+            <span className={cn(MONO, "text-[10px] uppercase tracking-[0.16em] text-muted-foreground")}>
               Total clicks
             </span>
-            <div className={cn(MONO, "mt-1 text-3xl font-semibold text-zinc-50 tabular-nums")}>
+            <div className={cn(MONO, "mt-1 text-3xl font-semibold text-foreground tabular-nums")}>
               {liveClicks.toLocaleString()}
             </div>
           </div>
           <div>
-            <span className={cn(MONO, "text-[10px] uppercase tracking-[0.16em] text-zinc-500")}>
+            <span className={cn(MONO, "text-[10px] uppercase tracking-[0.16em] text-muted-foreground")}>
               Created
             </span>
-            <div className={cn(MONO, "mt-1 text-sm text-zinc-300")}>
+            <div className={cn(MONO, "mt-1 text-sm text-foreground/70")}>
               {new Date(link.createdAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -242,7 +242,7 @@ export default function LinkDetailPage() {
                 <Activity className="size-4 text-lime-300" />
                 Clicks over time
               </CardTitle>
-              <Radio className="size-3 animate-pulse text-zinc-600" />
+              <Radio className="size-3 animate-pulse text-muted-foreground/40" />
             </div>
           </CardHeader>
           <CardContent>
@@ -278,16 +278,16 @@ export default function LinkDetailPage() {
                   const pct = maxCount > 0 ? (r.count / maxCount) * 100 : 0;
                   return (
                     <li key={r.referrer} className="flex items-center gap-3">
-                      <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-zinc-300 sm:w-28")}>
+                       <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-foreground/70 sm:w-28")}>
                         {r.referrer}
                       </span>
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/50">
                         <div
-                          className="h-full rounded-full bg-zinc-500 transition-all duration-500"
+                          className="h-full rounded-full bg-muted-foreground/50 transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-zinc-400")}>
+                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground")}>
                         {r.count}
                       </span>
                     </li>
@@ -295,7 +295,7 @@ export default function LinkDetailPage() {
                 })}
               </ul>
             ) : (
-              <p className="text-sm text-zinc-500">No referrer data yet.</p>
+              <p className="text-sm text-muted-foreground">No referrer data yet.</p>
             )}
           </CardContent>
         </Card>
@@ -313,16 +313,16 @@ export default function LinkDetailPage() {
                   const pct = maxCount > 0 ? (c.count / maxCount) * 100 : 0;
                   return (
                     <li key={c.country} className="flex items-center gap-3">
-                      <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-zinc-300 sm:w-28")}>
+                       <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-foreground/70 sm:w-28")}>
                         {c.country}
                       </span>
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/50">
                         <div
                           className="h-full rounded-full bg-lime-400/60 transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-zinc-400")}>
+                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground")}>
                         {c.count}
                       </span>
                     </li>
@@ -330,7 +330,7 @@ export default function LinkDetailPage() {
                 })}
               </ul>
             ) : (
-              <p className="text-sm text-zinc-500">No country data yet.</p>
+              <p className="text-sm text-muted-foreground">No country data yet.</p>
             )}
           </CardContent>
         </Card>
@@ -347,12 +347,12 @@ export default function LinkDetailPage() {
               {analytics.browserBreakdown.map((b) => (
                 <div
                   key={b.browser}
-                  className="rounded-md border border-white/5 bg-zinc-950/40 p-3"
+                  className="rounded-md border border-border/30 bg-background/60 p-3"
                 >
-                  <span className={cn(MONO, "text-[10px] uppercase tracking-wider text-zinc-500")}>
+                    <span className={cn(MONO, "text-[10px] uppercase tracking-wider text-muted-foreground")}>
                     {b.browser}
                   </span>
-                  <div className={cn(MONO, "mt-1 text-lg font-semibold text-zinc-100 tabular-nums")}>
+                  <div className={cn(MONO, "mt-1 text-lg font-semibold text-foreground tabular-nums")}>
                     {b.count}
                   </div>
                 </div>
@@ -370,7 +370,7 @@ export default function LinkDetailPage() {
               <CardTitle className="text-sm">Recent Clicks</CardTitle>
               <div className="flex items-center gap-1.5">
                 <span className="size-1.5 rounded-full bg-lime-400 animate-pulse" />
-                <span className={cn(MONO, "text-[10px] text-zinc-600")}>live</span>
+                <span className={cn(MONO, "text-[10px] text-muted-foreground/70")}>live</span>
               </div>
             </div>
           </CardHeader>
@@ -378,18 +378,18 @@ export default function LinkDetailPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-white/5">
-                    <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-zinc-500 font-medium")}>Time</th>
-                    <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-zinc-500 font-medium")}>Country</th>
-                    <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-zinc-500 font-medium")}>Device</th>
-                    <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-zinc-500 font-medium")}>Browser</th>
-                    <th className={cn(MONO, "pb-2 text-[10px] uppercase tracking-wider text-zinc-500 font-medium")}>Referrer</th>
+                    <tr className="border-b border-border/30">
+                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Time</th>
+                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Country</th>
+                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Device</th>
+                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Browser</th>
+                      <th className={cn(MONO, "pb-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Referrer</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-border/30">
                   {analytics.recentClicks.map((click) => (
-                    <tr key={click.id} className="text-zinc-300">
-                      <td className={cn(MONO, "py-2 pr-4 tabular-nums text-zinc-500")}>
+                    <tr key={click.id} className="text-foreground/70">
+                      <td className={cn(MONO, "py-2 pr-4 tabular-nums text-muted-foreground")}>
                         {new Date(click.clickedAt).toLocaleTimeString("en-US", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -399,13 +399,13 @@ export default function LinkDetailPage() {
                         {deviceIcon(click.deviceType)}
                         <span className="ml-1.5">{click.country}</span>
                       </td>
-                      <td className={cn(MONO, "py-2 pr-4 capitalize text-zinc-400")}>
+                      <td className={cn(MONO, "py-2 pr-4 capitalize text-muted-foreground")}>
                         {click.deviceType}
                       </td>
-                      <td className={cn(MONO, "py-2 pr-4 text-zinc-400")}>
+                      <td className={cn(MONO, "py-2 pr-4 text-muted-foreground")}>
                         {click.browser}
                       </td>
-                      <td className={cn(MONO, "py-2 truncate max-w-[160px] text-zinc-500")}>
+                      <td className={cn(MONO, "py-2 truncate max-w-[160px] text-muted-foreground")}>
                         {click.referrer}
                       </td>
                     </tr>
