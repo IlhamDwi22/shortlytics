@@ -5,10 +5,13 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Link2, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { cn } from "@/lib/utils";
+
+const MONO = "font-mono tracking-tight";
 
 function LoginForm() {
   const router = useRouter();
@@ -48,9 +51,9 @@ function LoginForm() {
   };
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-card p-6 shadow-md dark:border-neutral-800 sm:p-8">
+    <div className="rounded-lg border border-white/10 bg-zinc-900/60 p-6 shadow-lg sm:p-8">
       {error && (
-        <div className="mb-6 flex items-center gap-3 rounded-lg border border-error-500/20 bg-error-100/50 p-4 text-sm text-error-500 dark:bg-error-500/10">
+        <div className="mb-6 flex items-center gap-3 rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
           <AlertCircle className="size-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -60,7 +63,7 @@ function LoginForm() {
         <div className="space-y-1.5">
           <label
             htmlFor="email"
-            className="text-sm font-medium text-foreground"
+            className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-zinc-400")}
           >
             Email
           </label>
@@ -74,18 +77,17 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
+            className="border-white/10 bg-zinc-950/60 text-zinc-100 placeholder:text-zinc-600 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
           />
         </div>
 
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-foreground"
-            >
-              Password
-            </label>
-          </div>
+          <label
+            htmlFor="password"
+            className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-zinc-400")}
+          >
+            Password
+          </label>
           <Input
             id="password"
             name="password"
@@ -96,13 +98,14 @@ function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isLoading}
+            className="border-white/10 bg-zinc-950/60 text-zinc-100 placeholder:text-zinc-600 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
           />
         </div>
 
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-primary-600 font-medium text-white shadow-primary transition-all hover:bg-primary-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full bg-lime-400 font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isLoading ? (
             <>
@@ -110,16 +113,19 @@ function LoginForm() {
               Memproses...
             </>
           ) : (
-            "Masuk ke Akun"
+            <>
+              Masuk ke Akun
+              <ArrowUpRight className="ml-1.5 size-4" />
+            </>
           )}
         </Button>
       </form>
 
-      <div className="mt-6 border-t border-neutral-200 pt-6 text-center text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+      <div className="mt-6 border-t border-white/10 pt-6 text-center text-sm text-zinc-500">
         Belum punya akun?{" "}
         <Link
           href="/register"
-          className="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400"
+          className="font-semibold text-lime-300 transition-colors hover:text-lime-200"
         >
           Daftar sekarang
         </Link>
@@ -130,30 +136,42 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
-      {/* Top right theme toggle */}
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-4 py-12 text-zinc-100 [color-scheme:dark] sm:px-6 lg:px-8">
+      {/* Ambient glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(163,230,53,0.06),transparent_60%)]"
+      />
+
       <div className="absolute top-6 right-6">
         <ThemeToggle />
       </div>
 
       <div className="w-full max-w-md space-y-8">
-        {/* Header / Logo */}
         <div className="flex flex-col items-center text-center">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-primary-600 transition-transform hover:scale-105"
-          >
-            <div className="flex size-10 items-center justify-center rounded-xl bg-primary-600 text-white shadow-primary">
-              <Link2 className="size-6" />
-            </div>
-            <span className="font-display text-2xl font-bold tracking-tight text-foreground">
-              Shortlytics
+          <Link href="/" className="group flex items-center gap-2.5">
+            <span
+              className={cn(
+                MONO,
+                "flex h-7 items-center gap-1 rounded border border-lime-400/40 bg-lime-400/10 px-2 text-xs font-semibold text-lime-300"
+              )}
+            >
+              <span className="size-1.5 rounded-full bg-lime-400 animate-pulse" />
+              s/fn
+            </span>
+            <span
+              className={cn(
+                MONO,
+                "text-sm font-semibold tracking-tight text-zinc-100"
+              )}
+            >
+              shortlytics
             </span>
           </Link>
-          <h1 className="mt-6 font-display text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="mt-6 font-display text-3xl font-bold tracking-tight text-zinc-50">
             Welcome back
           </h1>
-          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="mt-2 text-sm text-zinc-400">
             Masuk ke akun Anda untuk mengelola short URL dan analytics
           </p>
         </div>
@@ -161,7 +179,7 @@ export default function LoginPage() {
         <Suspense
           fallback={
             <div className="flex justify-center p-8">
-              <Loader2 className="size-8 animate-spin text-primary-600" />
+              <Loader2 className="size-8 animate-spin text-lime-400" />
             </div>
           }
         >

@@ -113,12 +113,15 @@ export function LiveDot({ className }: { className?: string }) {
  * Text-writing (typewriter) reveal: types `text` char-by-char when the element
  * scrolls into view, then keeps a blinking caret. Newlines become <br/>. Any
  * substring equal to `highlight` is rendered in lime (the instrument accent).
+ *
+ * Layout-stable: full text is always rendered (invisible) to measure height,
+ * so surrounding content never shifts during the animation.
  */
 export function Typewriter({
   text,
   highlight,
-  speed = 42,
-  startDelay = 250,
+  speed = 38,
+  startDelay = 200,
   className,
 }: {
   text: string;
@@ -129,7 +132,7 @@ export function Typewriter({
 }) {
   const reduce = useReducedMotion();
   const ref = React.useRef<HTMLSpanElement>(null);
-  const ivRef = React.useRef<number | null>(null);
+  const rafRef = React.useRef<number | null>(null);
   const inView = useInView(ref, { once: true, amount: 0.4 });
   const hlStart = highlight ? text.indexOf(highlight) : -1;
   const hlEnd = highlight ? hlStart + highlight.length : hlStart;
@@ -139,22 +142,49 @@ export function Typewriter({
   React.useEffect(() => {
     if (!inView || reduce) return;
     let i = 0;
-    const timer = window.setTimeout(() => {
-      const iv = window.setInterval(() => {
+    let last = 0;
+
+    const tick = (now: number) => {
+      if (now - last >= speed) {
         i += 1;
         setCount(i);
-        if (i >= text.length) window.clearInterval(iv);
-      }, speed);
-      ivRef.current = iv;
+        last = now;
+        if (i >= text.length) return;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    const timer = window.setTimeout(() => {
+      last = performance.now();
+      rafRef.current = requestAnimationFrame(tick);
     }, startDelay);
+
     return () => {
       window.clearTimeout(timer);
-      if (ivRef.current) window.clearInterval(ivRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [inView, reduce, text, speed, startDelay]);
 
-  const shown = text.slice(0, count);
   const done = count >= text.length;
+
+  const renderText = (chars: string[]) =>
+    chars.map((ch, i) => {
+      const inHl = hlStart >= 0 && i >= hlStart && i < hlEnd;
+      if (ch === "\n") {
+        return (
+          <React.Fragment key={i}>
+            {"\n"}
+            <br />
+          </React.Fragment>
+        );
+      }
+      return (
+        <span key={i} className={cn(inHl && "text-lime-300 text-glow-lime")}>
+          {ch}
+        </span>
+      );
+    });
+
   const caret = (
     <span
       aria-hidden
@@ -162,30 +192,21 @@ export function Typewriter({
     />
   );
 
-  if (count === 0 && !done) return <span ref={ref} className={className} />;
+  const allChars = text.split("");
 
   return (
-    <span ref={ref} className={className}>
-      {shown.split("").map((ch, i) => {
-        const inHl = hlStart >= 0 && i >= hlStart && i < hlEnd;
-        if (ch === "\n") {
-          return (
-            <React.Fragment key={i}>
-              {"\n"}
-              <br />
-            </React.Fragment>
-          );
-        }
-        return (
-          <span
-            key={i}
-            className={cn(inHl && "text-lime-300 text-glow-lime")}
-          >
-            {ch}
-          </span>
-        );
-      })}
-      {!done && caret}
+    <span ref={ref} className={cn("grid w-full", className)}>
+      {/* invisible placeholder — always renders full text to hold height */}
+      <span className="invisible col-start-1 row-start-1 select-none" aria-hidden>
+        {renderText(allChars)}
+      </span>
+      {/* visible typewriter — overlaid on the same grid cell */}
+      <span className="col-start-1 row-start-1">
+        {reduce
+          ? renderText(allChars)
+          : renderText(allChars.slice(0, count))}
+        {!done && !reduce && caret}
+      </span>
     </span>
   );
 }

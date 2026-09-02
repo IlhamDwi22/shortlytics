@@ -20,7 +20,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { CountUp, LiveDot, Reveal, Typewriter } from "@/components/live";
+import { CountUp, LiveDot, Reveal } from "@/components/live";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -197,11 +197,79 @@ export default function LandingPage() {
             Live SSE stream · 0.0s refresh
           </div>
 
-          <h1 className="mt-6 font-display text-4xl font-bold leading-[1.05] tracking-tight text-zinc-50 sm:text-5xl lg:text-[3.4rem]">
-            <Typewriter
-              text={"Short links.\nSignals in real time."}
-              highlight="real time."
-            />
+          <h1
+            className="mt-6 grid w-full font-display text-4xl font-bold leading-[1.05] tracking-tight text-zinc-50 sm:text-5xl lg:text-[3.4rem]"
+          >
+            {/* invisible placeholder — holds final height */}
+            <span className="invisible col-start-1 row-start-1 select-none" aria-hidden>
+              Short links.<br />Signals in real time.
+            </span>
+            {/* visible animated text */}
+            <motion.span
+              className="col-start-1 row-start-1"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: { transition: { staggerChildren: 0.07 } },
+              }}
+            >
+              <motion.span
+                className="inline-block"
+                variants={{
+                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                }}
+              >
+                Short{" "}
+              </motion.span>
+              <motion.span
+                className="inline-block"
+                variants={{
+                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                }}
+              >
+                links.
+              </motion.span>
+              <br />
+              <motion.span
+                className="inline-block"
+                variants={{
+                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                }}
+              >
+                Signals{" "}
+              </motion.span>
+              <motion.span
+                className="inline-block"
+                variants={{
+                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                }}
+              >
+                in{" "}
+              </motion.span>
+              <motion.span
+                className="inline-block text-lime-300 text-glow-lime"
+                variants={{
+                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                }}
+              >
+                real{" "}
+              </motion.span>
+              <motion.span
+                className="inline-block text-lime-300 text-glow-lime"
+                variants={{
+                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                }}
+              >
+                time.
+              </motion.span>
+            </motion.span>
           </h1>
 
           <p className="mt-5 max-w-md text-base leading-relaxed text-zinc-400">
@@ -219,7 +287,6 @@ export default function LandingPage() {
               <div className="flex flex-1 items-center gap-2 px-3">
                 <span className={cn(MONO, "flex items-center gap-1 text-xs text-zinc-500")}>
                   <span className="text-lime-300">$</span>
-                  <span className="caret-blink h-3.5 w-[1.5px] bg-lime-400/70" />
                 </span>
                 <Input
                   value={url}
