@@ -5,17 +5,17 @@ import { Toaster as Sonner } from "sonner";
 function Toaster() {
   return (
     <Sonner
-      theme="dark"
+      theme="system"
       className="toaster group"
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-zinc-900 group-[.toaster]:border-white/10 group-[.toaster]:text-zinc-100 group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-zinc-400",
+            "group toast group-[.toaster]:bg-card group-[.toaster]:border-border group-[.toaster]:text-card-foreground group-[.toaster]:shadow-lg",
+          description: "group-[.toast]:text-muted-foreground",
           actionButton:
             "group-[.toast]:bg-lime-400 group-[.toast]:text-zinc-950 group-[.toast]:font-medium",
           cancelButton:
-            "group-[.toast]:bg-zinc-800 group-[.toast]:text-zinc-400",
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
     />
