@@ -1,11 +1,30 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { authRateLimit } from "@/lib/rate-limit";
+import { extractClientIp } from "@/lib/privacy";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: Request) {
   try {
+    // 0. Rate Limiting (5 req / min per IP)
+    const ip = extractClientIp(req);
+    const { success, reset } = await authRateLimit.limit(ip);
+    if (!success) {
+      return NextResponse.json(
+        {
+          error: "RATE_LIMITED",
+          message: "Terlalu banyak percobaan registrasi. Coba lagi dalam beberapa saat.",
+          retryAfter: reset,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": reset.toString() },
+        }
+      );
+    }
+
     const body = await req.json();
     const { email, password, name } = body;
 
