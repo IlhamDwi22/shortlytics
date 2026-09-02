@@ -5,6 +5,7 @@ import { ArrowUpRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RollingText } from "@/components/rolling-text";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -63,10 +64,10 @@ export function LinkForm({ onCreated }: LinkFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-white/10 bg-zinc-900/60 p-1.5">
+    <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card p-1.5">
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="flex flex-1 items-center gap-2 px-3">
-          <span className={cn(MONO, "flex items-center gap-1 text-xs text-zinc-500")}>
+          <span className={cn(MONO, "flex items-center gap-1 text-xs text-muted-foreground")}>
             <span className="text-lime-300">$</span>
           </span>
           <Input
@@ -75,7 +76,7 @@ export function LinkForm({ onCreated }: LinkFormProps) {
             placeholder="paste://your-long-url-here"
             aria-label="Paste your long URL"
             disabled={isLoading}
-            className="h-11 border-0 bg-transparent p-0 font-mono text-sm text-zinc-100 shadow-none placeholder:text-zinc-600 focus-visible:ring-0 dark:border-0 dark:bg-transparent"
+            className="h-11 border-0 bg-transparent p-0 font-mono text-sm text-foreground shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-0"
           />
         </div>
         <Button
@@ -89,7 +90,7 @@ export function LinkForm({ onCreated }: LinkFormProps) {
           ) : (
             <ArrowUpRight className="mr-1.5 size-4" />
           )}
-          {isLoading ? "Shortening..." : "Shorten"}
+          {isLoading ? "Shortening..." : <RollingText>Shorten</RollingText>}
         </Button>
       </div>
     </form>

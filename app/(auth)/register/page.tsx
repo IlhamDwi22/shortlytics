@@ -7,7 +7,7 @@ import { signIn } from "next-auth/react";
 import { Loader2, AlertCircle, CheckCircle2, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { RollingText } from "@/components/rolling-text";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -81,16 +81,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-4 py-12 text-zinc-100 [color-scheme:dark] sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 text-foreground sm:px-6 lg:px-8">
       {/* Ambient glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(163,230,53,0.06),transparent_60%)]"
       />
-
-      <div className="absolute top-6 right-6">
-        <ThemeToggle />
-      </div>
 
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
@@ -107,21 +103,21 @@ export default function RegisterPage() {
             <span
               className={cn(
                 MONO,
-                "text-sm font-semibold tracking-tight text-zinc-100"
+                "text-sm font-semibold tracking-tight text-foreground"
               )}
             >
               shortlytics
             </span>
           </Link>
-          <h1 className="mt-6 font-display text-3xl font-bold tracking-tight text-zinc-50">
+          <h1 className="mt-6 font-display text-3xl font-bold tracking-tight text-foreground">
             Create an account
           </h1>
-          <p className="mt-2 text-sm text-zinc-400">
+          <p className="mt-2 text-sm text-muted-foreground">
             Daftar akun gratis dan mulai pantau performa short link Anda
           </p>
         </div>
 
-        <div className="rounded-lg border border-white/10 bg-zinc-900/60 p-6 shadow-lg sm:p-8">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-lg sm:p-8">
           {error && (
             <div className="mb-6 flex items-center gap-3 rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
               <AlertCircle className="size-5 shrink-0" />
@@ -140,7 +136,7 @@ export default function RegisterPage() {
             <div className="space-y-1.5">
               <label
                 htmlFor="name"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-zinc-400")}
+                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Nama Lengkap (Opsional)
               </label>
@@ -153,14 +149,14 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={isLoading}
-                className="border-white/10 bg-zinc-950/60 text-zinc-100 placeholder:text-zinc-600 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
             <div className="space-y-1.5">
               <label
                 htmlFor="email"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-zinc-400")}
+                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Email <span className="text-red-400">*</span>
               </label>
@@ -174,14 +170,14 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="border-white/10 bg-zinc-950/60 text-zinc-100 placeholder:text-zinc-600 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
             <div className="space-y-1.5">
               <label
                 htmlFor="password"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-zinc-400")}
+                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Password <span className="text-red-400">*</span>
               </label>
@@ -195,14 +191,14 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className="border-white/10 bg-zinc-950/60 text-zinc-100 placeholder:text-zinc-600 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
             <div className="space-y-1.5">
               <label
                 htmlFor="confirmPassword"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-zinc-400")}
+                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Konfirmasi Password <span className="text-red-400">*</span>
               </label>
@@ -216,7 +212,7 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isLoading}
-                className="border-white/10 bg-zinc-950/60 text-zinc-100 placeholder:text-zinc-600 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
@@ -232,14 +228,14 @@ export default function RegisterPage() {
                 </>
               ) : (
                 <>
-                  Daftar Akun Baru
+                  <RollingText>Daftar Akun Baru</RollingText>
                   <ArrowUpRight className="ml-1.5 size-4" />
                 </>
               )}
             </Button>
           </form>
 
-          <div className="mt-6 border-t border-white/10 pt-6 text-center text-sm text-zinc-500">
+          <div className="mt-6 border-t border-border pt-6 text-center text-sm text-muted-foreground">
             Sudah punya akun?{" "}
             <Link
               href="/login"
