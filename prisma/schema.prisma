@@ -9,11 +9,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String   // hashed, never plaintext
-  name      String?
-  createdAt DateTime @default(now())
+  id             String     @id @default(cuid())
+  email          String     @unique
+  password       String     // hashed, never plaintext
+  name           String?
+  failedAttempts Int        @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime   @default(now())
 
   links Link[]
 
@@ -45,14 +47,13 @@ model Click {
   link       Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
 
   clickedAt  DateTime @default(now())
-  ipAddress  String   // disimpan untuk geolocation, di-mask saat ditampilkan
+  ipAddress  String   // ALWAYS masked (e.g. "103.21.244.xxx") — raw IP is never persisted
   country    String?
   city       String?
   deviceType String?  // "mobile" | "desktop" | "tablet"
   browser    String?
   referrer   String?
 
-  @@index([linkId])
-  @@index([clickedAt])
+  @@index([linkId, clickedAt])
   @@map("clicks")
 }
