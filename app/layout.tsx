@@ -30,12 +30,20 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} dark h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Apply theme class before paint to avoid a light-flash on dark users.
+            The landing page forces `dark` itself; the app honors system pref. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var d=document.documentElement;var m=window.matchMedia('(prefers-color-scheme: dark)');function apply(){d.classList.toggle('dark',m.matches);}apply();m.addEventListener('change',apply);})();`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans">
-        <SessionProvider>
-          {children}
-        </SessionProvider>
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

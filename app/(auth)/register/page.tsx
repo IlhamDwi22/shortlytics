@@ -90,53 +90,53 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
-          <Link href="/" className="group flex items-center gap-2.5">
+          <Link href="/" className="group flex items-center gap-3">
             <span
               className={cn(
                 MONO,
-                "flex h-7 items-center gap-1 rounded border border-lime-400/40 bg-lime-400/10 px-2 text-xs font-semibold text-lime-300"
+                "flex h-8 items-center gap-1.5 rounded border border-lime-400/40 bg-lime-400/10 px-2.5 text-xs font-semibold text-primary-600 dark:text-lime-300"
               )}
             >
-              <span className="size-1.5 rounded-full bg-lime-400 animate-pulse" />
+              <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
               s/fn
             </span>
             <span
               className={cn(
                 MONO,
-                "text-sm font-semibold tracking-tight text-foreground"
+                "text-base font-semibold tracking-tight text-foreground"
               )}
             >
               shortlytics
             </span>
           </Link>
-          <h1 className="mt-6 font-display text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="mt-7 font-display text-4xl font-bold tracking-tight text-foreground">
             Create an account
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2.5 text-base text-muted-foreground">
             Daftar akun gratis dan mulai pantau performa short link Anda
           </p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-6 shadow-lg sm:p-8">
+        <div className="rounded-xl border border-border bg-card p-8 shadow-lg sm:p-10">
           {error && (
-            <div className="mb-6 flex items-center gap-3 rounded-md border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+            <div className="mb-8 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-base text-red-400">
               <AlertCircle className="size-5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="mb-6 flex items-center gap-3 rounded-md border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
+            <div className="mb-8 flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-base text-emerald-400">
               <CheckCircle2 className="size-5 shrink-0" />
               <span>{success}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
               <label
                 htmlFor="name"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
+                className={cn(MONO, "text-sm font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Nama Lengkap (Opsional)
               </label>
@@ -149,14 +149,14 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={isLoading}
-                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="h-12 border-border bg-background text-base text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label
                 htmlFor="email"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
+                className={cn(MONO, "text-sm font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Email <span className="text-red-400">*</span>
               </label>
@@ -170,14 +170,14 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="h-12 border-border bg-background text-base text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label
                 htmlFor="password"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
+                className={cn(MONO, "text-sm font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Password <span className="text-red-400">*</span>
               </label>
@@ -191,14 +191,14 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="h-12 border-border bg-background text-base text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label
                 htmlFor="confirmPassword"
-                className={cn(MONO, "text-xs font-medium uppercase tracking-wider text-muted-foreground")}
+                className={cn(MONO, "text-sm font-medium uppercase tracking-wider text-muted-foreground")}
               >
                 Konfirmasi Password <span className="text-red-400">*</span>
               </label>
@@ -212,34 +212,34 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isLoading}
-                className="border-border bg-background text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
+                className="h-12 border-border bg-background text-base text-foreground placeholder:text-muted-foreground/60 focus-visible:border-lime-400/50 focus-visible:ring-lime-400/20"
               />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="mt-2 w-full bg-lime-400 font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-3 h-12 w-full rounded-lg bg-lime-400 text-base font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="mr-2 size-5 animate-spin" />
                   Mendaftarkan...
                 </>
               ) : (
                 <>
                   <RollingText>Daftar Akun Baru</RollingText>
-                  <ArrowUpRight className="ml-1.5 size-4" />
+                  <ArrowUpRight className="ml-1.5 size-5" />
                 </>
               )}
             </Button>
           </form>
 
-          <div className="mt-6 border-t border-border pt-6 text-center text-sm text-muted-foreground">
+          <div className="mt-8 border-t border-border pt-6 text-center text-base text-muted-foreground">
             Sudah punya akun?{" "}
             <Link
               href="/login"
-              className="font-semibold text-lime-300 transition-colors hover:text-lime-200"
+              className="font-semibold text-primary-600 transition-colors hover:text-primary-700 dark:text-lime-300 dark:hover:text-lime-200"
             >
               Masuk di sini
             </Link>

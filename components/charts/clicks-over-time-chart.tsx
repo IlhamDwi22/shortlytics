@@ -39,7 +39,7 @@ export function ClicksOverTimeChart({ data }: ClicksOverTimeChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground sm:h-[280px]">
-        No click data yet.
+        Belum ada data klik.
       </div>
     );
   }
@@ -58,19 +58,19 @@ export function ClicksOverTimeChart({ data }: ClicksOverTimeChartProps) {
         <AreaChart data={formatted} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
           <defs>
             <linearGradient id="clickGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#A3E635" stopOpacity={0.3} />
-              <stop offset="100%" stopColor="#A3E635" stopOpacity={0} />
+              <stop offset="0%" style={{ stopColor: "var(--chart-1)", stopOpacity: 0.3 }} />
+              <stop offset="100%" style={{ stopColor: "var(--chart-1)", stopOpacity: 0 }} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10, fill: "#71717A", fontFamily: "var(--font-mono)" }}
-            axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
+            tick={{ fontSize: 10, fill: "var(--muted-foreground)", fontFamily: "var(--font-mono)" }}
+            axisLine={{ stroke: "var(--border)" }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: "#71717A", fontFamily: "var(--font-mono)" }}
+            tick={{ fontSize: 10, fill: "var(--muted-foreground)", fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
             allowDecimals={false}
@@ -79,7 +79,7 @@ export function ClicksOverTimeChart({ data }: ClicksOverTimeChartProps) {
           <Area
             type="monotone"
             dataKey="count"
-            stroke="#A3E635"
+            stroke="var(--chart-1)"
             strokeWidth={2}
             fill="url(#clickGradient)"
           />

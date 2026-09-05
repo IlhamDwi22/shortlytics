@@ -78,13 +78,13 @@ export function LinkCard({
 
   return (
     <>
-      <div className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-border/50">
+      <div className="group rounded-xl border border-border bg-card p-5 transition-[border-color] duration-fast hover:border-lime-400/30">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <Link
                 href={`/links/${id}`}
-                className={cn(MONO, "truncate text-sm font-medium text-lime-300 hover:text-lime-200")}
+                className={cn(MONO, "truncate text-base font-medium text-lime-300 hover:text-lime-200")}
               >
                 {shortUrl.replace(/^https?:\/\//, "")}
               </Link>
@@ -94,26 +94,26 @@ export function LinkCard({
                 rel="noopener noreferrer"
                 className="text-muted-foreground/60 transition-colors hover:text-muted-foreground"
               >
-                <ExternalLink className="size-3.5" />
+                <ExternalLink className="size-4" />
               </Link>
             </div>
-            <p className={cn(MONO, "mt-1 truncate text-xs text-muted-foreground")}>
+            <p className={cn(MONO, "mt-1.5 truncate text-sm text-muted-foreground")}>
               {originalUrl}
             </p>
           </div>
 
           <div className="flex items-center gap-1.5">
             <Badge variant={totalClicks > 0 ? "default" : "outline"}>
-              {totalClicks} clicks
+              {totalClicks} klik
             </Badge>
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between border-t border-border/30 pt-3">
-          <span className={cn(MONO, "text-[10px] uppercase tracking-wider text-muted-foreground/70")}>
+        <div className="mt-4 flex items-center justify-between border-t border-border/30 pt-4">
+          <span className={cn(MONO, "text-xs uppercase tracking-wider text-muted-foreground/70")}>
             {createdDate}
           </span>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon-sm"
@@ -121,18 +121,18 @@ export function LinkCard({
               className="text-muted-foreground hover:text-lime-300"
             >
               {copied ? (
-                <Check className="size-3.5 text-lime-400" />
+                <Check className="size-4 text-lime-400" />
               ) : (
-                <Copy className="size-3.5" />
+                <Copy className="size-4" />
               )}
             </Button>
             <Link
               href={`/links/${id}`}
               className={cn(
-                "inline-flex size-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                "inline-flex size-8 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               )}
             >
-              <ExternalLink className="size-3.5" />
+              <ExternalLink className="size-4" />
             </Link>
             <Button
               variant="ghost"
@@ -140,7 +140,7 @@ export function LinkCard({
               onClick={() => setShowDeleteDialog(true)}
               className="text-muted-foreground hover:text-red-400"
             >
-              <Trash2 className="size-3.5" />
+              <Trash2 className="size-4" />
             </Button>
           </div>
         </div>
@@ -149,13 +149,14 @@ export function LinkCard({
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Link</DialogTitle>
+            <DialogTitle>Hapus Link</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this link? This action cannot be undone and all analytics data will be permanently removed.
+              Apakah Anda yakin ingin menghapus link ini? Tindakan ini tidak dapat
+              dibatalkan dan seluruh data analytics akan dihapus permanen.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-3 rounded-md border border-border bg-background/60 p-3">
-            <p className={cn(MONO, "truncate text-xs text-muted-foreground")}>{shortUrl}</p>
+          <div className="mt-3 rounded-lg border border-border bg-background/60 p-4">
+            <p className={cn(MONO, "truncate text-sm text-muted-foreground")}>{shortUrl}</p>
           </div>
           <DialogFooter>
             <Button
@@ -163,14 +164,14 @@ export function LinkCard({
               onClick={() => setShowDeleteDialog(false)}
               disabled={isDeleting}
             >
-              Cancel
+              Batal
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? "Menghapus..." : "Hapus"}
             </Button>
           </DialogFooter>
         </DialogContent>

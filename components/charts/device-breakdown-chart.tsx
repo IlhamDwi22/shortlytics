@@ -14,7 +14,7 @@ interface DeviceBreakdownChartProps {
   data: { type: string; count: number }[];
 }
 
-const COLORS = ["#A3E635", "#84CC16", "#65A30D", "#4D7C0F", "#3F6212"];
+const CHART_VARS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 
 function CustomTooltip({
   active,
@@ -55,7 +55,7 @@ export function DeviceBreakdownChart({ data }: DeviceBreakdownChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground sm:h-[280px]">
-        No device data yet.
+        Belum ada data perangkat.
       </div>
     );
   }
@@ -76,7 +76,7 @@ export function DeviceBreakdownChart({ data }: DeviceBreakdownChartProps) {
             strokeWidth={0}
           >
             {data.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              <Cell key={i} fill={CHART_VARS[i % CHART_VARS.length]} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />

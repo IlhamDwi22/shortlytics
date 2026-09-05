@@ -21,7 +21,6 @@
   --color-primary-800: var(--primary-800);
   --color-primary-900: var(--primary-900);
 
-  --color-accent-amber: var(--accent-amber);
   --color-accent-lime: var(--accent-lime);
 
   --color-success-100: var(--success-100);
@@ -88,14 +87,25 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+
+  /* Motion — durations per design v2 spec */
+  --transition-duration-fast: 120ms;
+  --transition-duration-base: 300ms;
+  --transition-duration-slow: 500ms;
+  --transition-duration-reveal: 350ms;
+  --transition-duration-counter: 400ms;
 }
 
 /* ────────────────────────────────────────────────────────────────────────
    Shortlytics — "Data Instrument" design system (v2)
-   Dark-only. Electric Lime accent on zinc near-black base.
+   Electric Lime accent on zinc near-black base.
+   Landing page is forced dark via a local `dark` class; the app
+   (dashboard/auth) follows system light/dark preference.
    ──────────────────────────────────────────────────────────────────────── */
 
 :root {
+  color-scheme: light;
+
   /* Primary — Electric Lime */
   --primary-50: #F7FEE7;
   --primary-100: #ECFCCB;
@@ -108,8 +118,7 @@
   --primary-800: #3F6212;
   --primary-900: #365314;
 
-  /* Accent aliases */
-  --accent-amber: #A3E635;
+  /* Accent alias */
   --accent-lime: #A3E635;
 
   /* Semantic Colors */
@@ -119,6 +128,86 @@
   --error-500: #EF4444;
   --warning-100: #FEF3C7;
   --warning-500: #F59E0B;
+
+  /* Neutral Scale — Light (zinc) */
+  --neutral-0: #FBFCFD;
+  --neutral-50: #FFFFFF;
+  --neutral-100: #F4F4F5;
+  --neutral-200: #E4E4E7;
+  --neutral-300: #D4D4D8;
+  --neutral-400: #A1A1AA;
+  --neutral-500: #71717A;
+  --neutral-600: #52525B;
+  --neutral-700: #3F3F46;
+  --neutral-800: #27272A;
+  --neutral-900: #18181B;
+  --neutral-950: #09090B;
+
+  /* Semantic mappings (light) */
+  --background: var(--neutral-0);
+  --foreground: var(--neutral-900);
+
+  --card: var(--neutral-50);
+  --card-foreground: var(--neutral-900);
+
+  --popover: var(--neutral-50);
+  --popover-foreground: var(--neutral-900);
+
+  --primary: var(--primary-500);
+  --primary-foreground: #0B0D10;
+
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--neutral-800);
+
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-500);
+
+  --accent: var(--accent-lime);
+  --accent-foreground: #0B0D10;
+
+  --destructive: var(--error-500);
+  --destructive-foreground: #FFFFFF;
+
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--primary-500);
+
+  /* Border Radius */
+  --radius: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Shadow — subtle tint for light mode */
+  --shadow-sm: 0 1px 2px rgba(11, 13, 16, 0.12);
+  --shadow-md: 0 4px 14px rgba(11, 13, 16, 0.16);
+  --shadow-lg: 0 10px 30px rgba(11, 13, 16, 0.22);
+
+  /* Sidebar */
+  --sidebar: var(--neutral-50);
+  --sidebar-foreground: var(--neutral-700);
+  --sidebar-primary: var(--primary-600);
+  --sidebar-primary-foreground: #0B0D10;
+  --sidebar-accent: var(--neutral-100);
+  --sidebar-accent-foreground: var(--neutral-900);
+  --sidebar-border: var(--neutral-200);
+  --sidebar-ring: var(--primary-500);
+
+  /* Charts — single-accent lime scale (design §3.2: no second accent) */
+  --chart-1: #A3E635;
+  --chart-2: #84CC16;
+  --chart-3: #65A30D;
+  --chart-4: #BEF264;
+  --chart-5: #D9F99D;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Accent alias (dark) */
+  --accent-lime: #A3E635;
 
   /* Neutral Scale — Dark (zinc near-black) */
   --neutral-0: #0B0D10;
@@ -134,7 +223,7 @@
   --neutral-900: #E6EAF0;
   --neutral-950: #F5F7FA;
 
-  /* Semantic mappings */
+  /* Semantic mappings (dark) */
   --background: var(--neutral-0);
   --foreground: var(--neutral-950);
 
@@ -163,14 +252,6 @@
   --input: var(--neutral-200);
   --ring: var(--primary-400);
 
-  /* Border Radius */
-  --radius: 0.5rem;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-full: 9999px;
-
   /* Shadow — dark surfaces rely on border, not heavy shadow */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
@@ -186,12 +267,12 @@
   --sidebar-border: var(--neutral-200);
   --sidebar-ring: var(--primary-400);
 
-  /* Charts */
+  /* Charts — bright lime scale pops on dark */
   --chart-1: #A3E635;
-  --chart-2: #38BDF8;
-  --chart-3: #F472B6;
-  --chart-4: #22C55E;
-  --chart-5: #FBBF24;
+  --chart-2: #84CC16;
+  --chart-3: #4D7C0F;
+  --chart-4: #65A30D;
+  --chart-5: #D9F99D;
 }
 
 @layer base {

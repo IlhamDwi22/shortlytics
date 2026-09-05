@@ -21,7 +21,7 @@ export function Reveal({
   className,
   delay = 0,
   y = 12,
-  duration = 0.5,
+  duration = 0.35,
   id,
 }: {
   children: React.ReactNode;
@@ -73,7 +73,7 @@ export function CountUp({
       return;
     }
     const controls = animate(mv, to, {
-      duration: 0.9,
+      duration: 0.4,
       ease: [0.16, 1, 0.3, 1],
     });
     return () => controls.stop();
@@ -196,12 +196,14 @@ export function Typewriter({
 
   return (
     <span ref={ref} className={cn("grid w-full", className)}>
+      {/* Screen readers always announce the complete text at once. */}
+      <span className="sr-only">{text}</span>
       {/* invisible placeholder — always renders full text to hold height */}
       <span className="invisible col-start-1 row-start-1 select-none" aria-hidden>
         {renderText(allChars)}
       </span>
       {/* visible typewriter — overlaid on the same grid cell */}
-      <span className="col-start-1 row-start-1">
+      <span className="col-start-1 row-start-1" aria-hidden>
         {reduce
           ? renderText(allChars)
           : renderText(allChars.slice(0, count))}
