@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { maskIp } from "@/lib/privacy";
+import { getShortUrl } from "@/lib/request";
 
 /**
  * GET /api/links/:id/analytics
@@ -59,69 +60,81 @@ export async function GET(
       );
     }
 
-    // 3. Fetch Click Records
-    const clicks = await prisma.click.findMany({
-      where: { linkId: link.id },
-      orderBy: { clickedAt: "desc" },
-    });
+    // 3. Fetch Click Records (bounded — all aggregation happens in the database)
+    const [
+      totalClicks,
+      recentClicksRaw,
+      deviceBreakdownRaw,
+      browserBreakdownRaw,
+      topReferrersRaw,
+      topCountriesRaw,
+    ] = await Promise.all([
+      prisma.click.count({ where: { linkId: link.id } }),
+      prisma.click.findMany({
+        where: { linkId: link.id },
+        orderBy: { clickedAt: "desc" },
+        take: 15,
+      }),
+      prisma.click.groupBy({
+        by: ["deviceType"],
+        where: { linkId: link.id },
+        _count: { deviceType: true },
+      }),
+      prisma.click.groupBy({
+        by: ["browser"],
+        where: { linkId: link.id },
+        _count: { browser: true },
+      }),
+      prisma.click.groupBy({
+        by: ["referrer"],
+        where: { linkId: link.id },
+        _count: { referrer: true },
+        orderBy: { _count: { referrer: "desc" } },
+        take: 10,
+      }),
+      prisma.click.groupBy({
+        by: ["country"],
+        where: { linkId: link.id },
+        _count: { country: true },
+        orderBy: { _count: { country: "desc" } },
+        take: 10,
+      }),
+    ]);
 
-    const totalClicks = clicks.length;
+    // Daily series — grouped server-side in Postgres, never loaded row-by-row.
+    const dailyRows = await prisma.$queryRaw<
+      { date: string; count: number }[]
+    >`
+      SELECT TO_CHAR(DATE_TRUNC('day', "clickedAt"), 'YYYY-MM-DD') AS "date",
+             COUNT(*)::int AS count
+      FROM "clicks"
+      WHERE "linkId" = ${link.id}
+      GROUP BY 1
+      ORDER BY "date" ASC
+    `;
 
-    // 4. Compute Daily Clicks (Grouped by YYYY-MM-DD in chronological order)
-    const dayMap = new Map<string, number>();
-    for (const click of clicks) {
-      const dateStr = click.clickedAt.toISOString().split("T")[0];
-      dayMap.set(dateStr, (dayMap.get(dateStr) || 0) + 1);
-    }
+    const clicksByDay = dailyRows;
 
-    const clicksByDay = Array.from(dayMap.entries())
-      .map(([date, count]) => ({ date, count }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-
-    // 5. Compute Device Breakdown
-    const deviceMap = new Map<string, number>();
-    for (const click of clicks) {
-      const dev = click.deviceType || "desktop";
-      deviceMap.set(dev, (deviceMap.get(dev) || 0) + 1);
-    }
-    const deviceBreakdown = Array.from(deviceMap.entries())
-      .map(([type, count]) => ({ type, count }))
+    const deviceBreakdown = deviceBreakdownRaw
+      .map((d) => ({ type: d.deviceType || "desktop", count: d._count.deviceType }))
       .sort((a, b) => b.count - a.count);
 
-    // 6. Compute Browser Breakdown
-    const browserMap = new Map<string, number>();
-    for (const click of clicks) {
-      const browser = click.browser || "Unknown";
-      browserMap.set(browser, (browserMap.get(browser) || 0) + 1);
-    }
-    const browserBreakdown = Array.from(browserMap.entries())
-      .map(([browser, count]) => ({ browser, count }))
+    const browserBreakdown = browserBreakdownRaw
+      .map((b) => ({ browser: b.browser || "Unknown", count: b._count.browser }))
       .sort((a, b) => b.count - a.count);
 
-    // 7. Compute Top Referrers
-    const referrerMap = new Map<string, number>();
-    for (const click of clicks) {
-      const ref = click.referrer || "direct";
-      referrerMap.set(ref, (referrerMap.get(ref) || 0) + 1);
-    }
-    const topReferrers = Array.from(referrerMap.entries())
-      .map(([referrer, count]) => ({ referrer, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+    const topReferrers = topReferrersRaw.map((r) => ({
+      referrer: r.referrer || "direct",
+      count: r._count.referrer,
+    }));
 
-    // 8. Compute Top Countries
-    const countryMap = new Map<string, number>();
-    for (const click of clicks) {
-      const country = click.country || "Unknown";
-      countryMap.set(country, (countryMap.get(country) || 0) + 1);
-    }
-    const topCountries = Array.from(countryMap.entries())
-      .map(([country, count]) => ({ country, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+    const topCountries = topCountriesRaw.map((c) => ({
+      country: c.country || "Unknown",
+      count: c._count.country,
+    }));
 
-    // 9. Recent Clicks (Mask IP Address strictly for privacy protection)
-    const recentClicks = clicks.slice(0, 15).map((c) => ({
+    // 4. Recent Clicks (IP Address masked strictly for privacy)
+    const recentClicks = recentClicksRaw.map((c) => ({
       id: c.id,
       clickedAt: c.clickedAt.toISOString(),
       maskedIp: maskIp(c.ipAddress),
@@ -132,17 +145,12 @@ export async function GET(
       referrer: c.referrer || "direct",
     }));
 
-    const host =
-      req.headers.get("x-forwarded-host") ||
-      req.headers.get("host") ||
-      process.env.APP_DOMAIN ||
-      "localhost:3000";
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const shortUrl = getShortUrl(req, link.shortCode);
 
     return NextResponse.json({
       linkId: link.id,
       shortCode: link.shortCode,
-      shortUrl: `${protocol}://${host}/${link.shortCode}`,
+      shortUrl,
       originalUrl: link.originalUrl,
       createdAt: link.createdAt.toISOString(),
       totalClicks,

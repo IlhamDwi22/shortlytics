@@ -2,6 +2,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
+// Hard cap on concurrent SSE streams per user. This is in-memory (per server
+// instance) — it prevents runaway connections on a single instance; a shared
+// store (Redis) would be needed for a cluster.
+const MAX_STREAMS_PER_USER = 5;
+const activeStreams = new Map<string, number>();
+
 /**
  * GET /api/links/:id/stream
  * Server-Sent Events (SSE) stream endpoint for real-time link click updates.
@@ -25,77 +31,94 @@ export async function GET(
       select: { id: true, userId: true },
     });
 
-    if (!link || link.userId !== session.user.id) {
+    if (!link) {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    if (link.userId !== session.user.id) {
       return new Response("Forbidden", { status: 403 });
     }
 
+    // 3. Per-user connection cap (fail fast before opening the stream)
+    const current = activeStreams.get(session.user.id) || 0;
+    if (current >= MAX_STREAMS_PER_USER) {
+      return new Response("Too Many Streams", { status: 429 });
+    }
+    activeStreams.set(session.user.id, current + 1);
+
     const encoder = new TextEncoder();
 
-    // 3. Create ReadableStream for SSE
+    // 4. Create ReadableStream for SSE
     const stream = new ReadableStream({
       async start(controller) {
         let isClosed = false;
         let lastCount = -1;
+        let pollIntervalRef: ReturnType<typeof setInterval> | null = null;
+        let heartbeatIntervalRef: ReturnType<typeof setInterval> | null = null;
 
-        // Clean closure helper
+        // Clean closure helper (releases the per-user slot + timers).
         const safeClose = () => {
-          if (!isClosed) {
-            isClosed = true;
-            try {
-              controller.close();
-            } catch {
-              // Ignore already closed controller errors
-            }
+          if (isClosed) return;
+          isClosed = true;
+          const remaining = activeStreams.get(session.user.id) || 0;
+          if (remaining > 1) {
+            activeStreams.set(session.user.id, remaining - 1);
+          } else {
+            activeStreams.delete(session.user.id);
+          }
+          if (pollIntervalRef) clearInterval(pollIntervalRef);
+          if (heartbeatIntervalRef) clearInterval(heartbeatIntervalRef);
+          try {
+            controller.close();
+          } catch {
+            // Ignore already closed controller errors
           }
         };
 
-        const checkAndUpdate = async (isInitial = false) => {
+        const poll = () => {
           if (isClosed) return;
-          try {
-            const currentCount = await prisma.click.count({
-              where: { linkId: link.id },
-            });
-
-            // Send event if count changed or on initial connection
-            if (isInitial || currentCount !== lastCount) {
-              lastCount = currentCount;
+          prisma.click
+            .count({ where: { linkId: link.id } })
+            .then((count) => {
+              if (isClosed || count === lastCount) return;
+              const isInitial = lastCount === -1;
+              lastCount = count;
               const payload = {
                 type: isInitial ? "init" : "click",
-                totalClicks: currentCount,
+                totalClicks: count,
                 timestamp: new Date().toISOString(),
               };
-
-              const message = `data: ${JSON.stringify(payload)}\n\n`;
-              controller.enqueue(encoder.encode(message));
-            }
-          } catch (err) {
-            console.error("SSE polling error:", err);
-          }
+              try {
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)
+                );
+              } catch {
+                // Stream errored (client gone / reset) — stop polling.
+                safeClose();
+              }
+            })
+            .catch((err) => {
+              console.error("SSE polling error:", err);
+            });
         };
 
-        // Send initial state immediately
-        await checkAndUpdate(true);
+        // Send initial count immediately, then poll for changes.
+        poll();
 
-        // Check for new clicks every 2.5 seconds
-        const pollInterval = setInterval(() => {
-          checkAndUpdate(false);
-        }, 2500);
+        pollIntervalRef = setInterval(poll, 2500);
 
         // Heartbeat comment every 15 seconds to keep connection alive
-        const heartbeatInterval = setInterval(() => {
-          if (!isClosed) {
-            try {
-              controller.enqueue(encoder.encode(": heartbeat\n\n"));
-            } catch {
-              safeClose();
-            }
+        heartbeatIntervalRef = setInterval(() => {
+          if (isClosed) return;
+          try {
+            controller.enqueue(encoder.encode(": heartbeat\n\n"));
+          } catch {
+            safeClose();
           }
         }, 15000);
 
         // Handle client disconnection / page navigation
         req.signal.addEventListener("abort", () => {
-          clearInterval(pollInterval);
-          clearInterval(heartbeatInterval);
           safeClose();
         });
       },
@@ -104,7 +127,7 @@ export async function GET(
     return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
+        "Cache-Control": "no-store, no-cache, no-transform",
         Connection: "keep-alive",
         "X-Accel-Buffering": "no",
       },

@@ -18,10 +18,15 @@ export function useRealtimeAnalytics(
   options?: UseRealtimeAnalyticsOptions
 ) {
   const [totalClicks, setTotalClicks] = useState<number>(
-    options?.initialTotalClicks || 0
+    options?.initialTotalClicks ?? 0
   );
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [lastEventTime, setLastEventTime] = useState<string | null>(null);
+
+  // Tracks whether the SSE stream has delivered data. Before the first event
+  // (or when SSE is permanently offline) we surface `initialTotalClicks`
+  // (e.g. from the link detail API) instead of a hard-coded 0.
+  const hasReceivedEventRef = useRef(false);
 
   // Store onNewClick in a ref to avoid recreating the eventSource on callback changes
   const onNewClickRef = useRef(options?.onNewClick);
@@ -29,11 +34,21 @@ export function useRealtimeAnalytics(
     onNewClickRef.current = options?.onNewClick;
   }, [options?.onNewClick]);
 
+  // Fallback: while SSE has delivered nothing, mirror the initial value so the
+  // counter never shows 0 when real data exists (e.g. SSE fails to connect).
+  useEffect(() => {
+    if (!hasReceivedEventRef.current) {
+      setTotalClicks(options?.initialTotalClicks ?? 0);
+    }
+  }, [options?.initialTotalClicks]);
+
   useEffect(() => {
     if (!linkId) return;
 
     let eventSource: EventSource | null = null;
     let isCancelled = false;
+    let errorCount = 0;
+    const MAX_RECONNECTS = 5;
 
     try {
       eventSource = new EventSource(`/api/links/${linkId}/stream`);
@@ -49,6 +64,7 @@ export function useRealtimeAnalytics(
 
         try {
           const data: RealtimeEventPayload = JSON.parse(event.data);
+          hasReceivedEventRef.current = true;
           setTotalClicks(data.totalClicks);
           setLastEventTime(data.timestamp);
 
@@ -61,8 +77,13 @@ export function useRealtimeAnalytics(
       };
 
       eventSource.onerror = () => {
-        if (!isCancelled) {
-          setIsConnected(false);
+        if (isCancelled) return;
+        setIsConnected(false);
+        // Stop reconnecting after repeated failures (e.g. 401/403/404 or the
+        // link was deleted) instead of polling forever with backoff.
+        errorCount++;
+        if (errorCount >= MAX_RECONNECTS && eventSource) {
+          eventSource.close();
         }
       };
     } catch (err) {

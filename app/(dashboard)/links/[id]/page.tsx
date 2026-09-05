@@ -15,6 +15,7 @@ import {
   Monitor,
   Activity,
   Radio,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -66,19 +67,26 @@ const DEVICE_ICONS: Record<string, React.ElementType> = {
 export default function LinkDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const linkId = params.id as string;
+  const rawLinkId = params.id;
+  const linkId = Array.isArray(rawLinkId) ? rawLinkId[0] : (rawLinkId as string) ?? "";
 
   const [link, setLink] = React.useState<LinkDetail | null>(null);
   const [analytics, setAnalytics] = React.useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [copied, setCopied] = React.useState(false);
+  const [analyticsError, setAnalyticsError] = React.useState<string | null>(null);
 
   const { totalClicks: liveClicks, isConnected } = useRealtimeAnalytics(linkId, {
-    initialTotalClicks: link?.totalClicks || 0,
+    initialTotalClicks: link?.totalClicks ?? 0,
   });
 
   React.useEffect(() => {
     async function fetchData() {
+      if (!linkId) {
+        router.push("/dashboard");
+        return;
+      }
+      setAnalyticsError(null);
       try {
         const [linkRes, analyticsRes] = await Promise.all([
           fetch(`/api/links/${linkId}`),
@@ -93,10 +101,14 @@ export default function LinkDetailPage() {
         const linkData = await linkRes.json();
         setLink(linkData);
 
-        if (analyticsRes.ok) {
-          const analyticsData = await analyticsRes.json();
-          setAnalytics(analyticsData);
+        if (!analyticsRes.ok) {
+          // Don't silently drop analytics failures — surface them with a banner.
+          setAnalyticsError("Gagal memuat data analitik.");
+          setAnalytics(null);
+          return;
         }
+        const analyticsData = await analyticsRes.json();
+        setAnalytics(analyticsData);
       } catch {
         router.push("/dashboard");
       }
@@ -121,10 +133,10 @@ export default function LinkDetailPage() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-28 w-full" />
         <div className="grid gap-4 md:grid-cols-2">
-          <Skeleton className="h-[200px] sm:h-[320px]" />
-          <Skeleton className="h-[200px] sm:h-[320px]" />
+          <Skeleton className="h-[220px] sm:h-[340px]" />
+          <Skeleton className="h-[220px] sm:h-[340px]" />
         </div>
       </div>
     );
@@ -134,7 +146,7 @@ export default function LinkDetailPage() {
 
   const deviceIcon = (type: string) => {
     const Icon = DEVICE_ICONS[type] || Monitor;
-    return <Icon className="size-3.5 text-lime-300" />;
+    return <Icon className="size-4 text-lime-300" />;
   };
 
   return (
@@ -144,19 +156,19 @@ export default function LinkDetailPage() {
         href="/dashboard"
         className={cn(
           MONO,
-          "inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+          "inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
         )}
       >
-        <ArrowLeft className="size-3.5" />
+        <ArrowLeft className="size-4" />
         Dashboard
       </Link>
 
       {/* Link header */}
-      <div className="rounded-lg border border-border bg-card p-5">
+      <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-              <h1 className={cn(MONO, "min-w-0 truncate text-lg font-semibold text-lime-300")}>
+              <h1 className={cn(MONO, "min-w-0 truncate text-xl font-semibold text-lime-300")}>
                 {link.shortUrl.replace(/^https?:\/\//, "")}
               </h1>
               <div className="flex items-center gap-2">
@@ -166,63 +178,63 @@ export default function LinkDetailPage() {
                 <div className="flex items-center gap-1.5">
                   <span
                     className={cn(
-                      "size-1.5 rounded-full",
+                      "size-2 rounded-full",
                       isConnected ? "bg-lime-400 animate-pulse" : "bg-muted-foreground/40"
                     )}
                   />
-                  <span className={cn(MONO, "text-[10px] text-muted-foreground/70")}>
+                  <span className={cn(MONO, "text-[11px] text-muted-foreground/70")}>
                     {isConnected ? "live" : "offline"}
                   </span>
                 </div>
               </div>
             </div>
-            <p className={cn(MONO, "mt-1 truncate text-xs text-muted-foreground")}>
+            <p className={cn(MONO, "mt-1.5 truncate text-sm text-muted-foreground")}>
               → {link.originalUrl}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Button
               variant="outline"
               size="sm"
               onClick={copyToClipboard}
-              className="border-border text-foreground/70 hover:bg-muted hover:text-foreground"
+              className="h-9 border-border px-4 text-foreground/70 hover:bg-muted hover:text-foreground"
             >
               {copied ? (
-                <Check className="mr-1.5 size-3.5 text-lime-400" />
+                <Check className="mr-1.5 size-4 text-lime-400" />
               ) : (
-                <Copy className="mr-1.5 size-3.5" />
+                <Copy className="mr-1.5 size-4" />
               )}
-              {copied ? "Copied" : "Copy"}
+              {copied ? "Tersalin" : "Salin"}
             </Button>
             <a
               href={link.shortUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                "inline-flex h-7 items-center gap-1.5 rounded-md border border-border px-2.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                "inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               )}
             >
-              <ExternalLink className="size-3.5" />
-              Visit
+              <ExternalLink className="size-4" />
+              Buka
             </a>
           </div>
         </div>
 
         {/* Live click counter */}
-        <div className="mt-5 flex items-center gap-6 border-t border-border/30 pt-5">
+        <div className="mt-6 flex items-center gap-8 border-t border-border/30 pt-6">
           <div>
-            <span className={cn(MONO, "text-[10px] uppercase tracking-[0.16em] text-muted-foreground")}>
-              Total clicks
+            <span className={cn(MONO, "text-xs uppercase tracking-[0.14em] text-muted-foreground")}>
+              Total klik
             </span>
-            <div className={cn(MONO, "mt-1 text-3xl font-semibold text-foreground tabular-nums")}>
+            <div className={cn(MONO, "mt-1 text-4xl font-semibold text-foreground tabular-nums")}>
               {liveClicks.toLocaleString()}
             </div>
           </div>
           <div>
-            <span className={cn(MONO, "text-[10px] uppercase tracking-[0.16em] text-muted-foreground")}>
-              Created
+            <span className={cn(MONO, "text-xs uppercase tracking-[0.14em] text-muted-foreground")}>
+              Dibuat
             </span>
-            <div className={cn(MONO, "mt-1 text-sm text-foreground/70")}>
+            <div className={cn(MONO, "mt-1.5 text-base text-foreground/70")}>
               {new Date(link.createdAt).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -234,15 +246,22 @@ export default function LinkDetailPage() {
       </div>
 
       {/* Charts row */}
+      {analyticsError && (
+        <div className="flex items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+          <AlertTriangle className="size-4.5 shrink-0" />
+          <span>{analyticsError}</span>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Activity className="size-4 text-lime-300" />
-                Clicks over time
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="size-5 text-lime-300" />
+                Klik dari Waktu ke Waktu
               </CardTitle>
-              <Radio className="size-3 animate-pulse text-muted-foreground/40" />
+              <Radio className="size-3.5 animate-pulse text-muted-foreground/40" />
             </div>
           </CardHeader>
           <CardContent>
@@ -252,9 +271,9 @@ export default function LinkDetailPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Globe2 className="size-4 text-lime-300" />
-              Device breakdown
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Globe2 className="size-5 text-lime-300" />
+              Perangkat
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -268,26 +287,26 @@ export default function LinkDetailPage() {
         {/* Top Referrers */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Top Referrers</CardTitle>
+            <CardTitle className="text-base">Referrer Teratas</CardTitle>
           </CardHeader>
           <CardContent>
             {analytics?.topReferrers && analytics.topReferrers.length > 0 ? (
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {analytics.topReferrers.map((r) => {
                   const maxCount = analytics.topReferrers[0].count;
                   const pct = maxCount > 0 ? (r.count / maxCount) * 100 : 0;
                   return (
                     <li key={r.referrer} className="flex items-center gap-3">
-                       <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-foreground/70 sm:w-28")}>
+                       <span className={cn(MONO, "w-24 min-w-0 shrink-0 truncate text-sm text-foreground/70 sm:w-32")}>
                         {r.referrer}
                       </span>
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/50">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted/50">
                         <div
                           className="h-full rounded-full bg-muted-foreground/50 transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground")}>
+                      <span className={cn(MONO, "w-10 shrink-0 text-right text-sm tabular-nums text-muted-foreground")}>
                         {r.count}
                       </span>
                     </li>
@@ -295,7 +314,7 @@ export default function LinkDetailPage() {
                 })}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">No referrer data yet.</p>
+              <p className="text-base text-muted-foreground">No referrer data yet.</p>
             )}
           </CardContent>
         </Card>
@@ -303,26 +322,26 @@ export default function LinkDetailPage() {
         {/* Top Countries */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Top Countries</CardTitle>
+            <CardTitle className="text-base">Top Countries</CardTitle>
           </CardHeader>
           <CardContent>
             {analytics?.topCountries && analytics.topCountries.length > 0 ? (
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {analytics.topCountries.map((c) => {
                   const maxCount = analytics.topCountries[0].count;
                   const pct = maxCount > 0 ? (c.count / maxCount) * 100 : 0;
                   return (
                     <li key={c.country} className="flex items-center gap-3">
-                       <span className={cn(MONO, "w-20 min-w-0 shrink-0 truncate text-xs text-foreground/70 sm:w-28")}>
+                       <span className={cn(MONO, "w-24 min-w-0 shrink-0 truncate text-sm text-foreground/70 sm:w-32")}>
                         {c.country}
                       </span>
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/50">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted/50">
                         <div
                           className="h-full rounded-full bg-lime-400/60 transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className={cn(MONO, "w-8 shrink-0 text-right text-xs tabular-nums text-muted-foreground")}>
+                      <span className={cn(MONO, "w-10 shrink-0 text-right text-sm tabular-nums text-muted-foreground")}>
                         {c.count}
                       </span>
                     </li>
@@ -330,7 +349,7 @@ export default function LinkDetailPage() {
                 })}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">No country data yet.</p>
+              <p className="text-base text-muted-foreground">Belum ada data negara.</p>
             )}
           </CardContent>
         </Card>
@@ -340,19 +359,19 @@ export default function LinkDetailPage() {
       {analytics?.browserBreakdown && analytics.browserBreakdown.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Browser Breakdown</CardTitle>
+            <CardTitle className="text-base">Peramban</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
               {analytics.browserBreakdown.map((b) => (
                 <div
                   key={b.browser}
-                  className="rounded-md border border-border/30 bg-background/60 p-3"
+                  className="rounded-lg border border-border/30 bg-background/60 p-4"
                 >
-                    <span className={cn(MONO, "text-[10px] uppercase tracking-wider text-muted-foreground")}>
+                    <span className={cn(MONO, "text-xs uppercase tracking-wider text-muted-foreground")}>
                     {b.browser}
                   </span>
-                  <div className={cn(MONO, "mt-1 text-lg font-semibold text-foreground tabular-nums")}>
+                  <div className={cn(MONO, "mt-1.5 text-2xl font-semibold text-foreground tabular-nums")}>
                     {b.count}
                   </div>
                 </div>
@@ -367,45 +386,45 @@ export default function LinkDetailPage() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">Recent Clicks</CardTitle>
+              <CardTitle className="text-base">Klik Terbaru</CardTitle>
               <div className="flex items-center gap-1.5">
-                <span className="size-1.5 rounded-full bg-lime-400 animate-pulse" />
-                <span className={cn(MONO, "text-[10px] text-muted-foreground/70")}>live</span>
+                <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
+                <span className={cn(MONO, "text-[11px] text-muted-foreground/70")}>live</span>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-sm">
                 <thead>
                     <tr className="border-b border-border/30">
-                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Time</th>
-                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Country</th>
-                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Device</th>
-                      <th className={cn(MONO, "pb-2 pr-4 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Browser</th>
-                      <th className={cn(MONO, "pb-2 text-[10px] uppercase tracking-wider text-muted-foreground font-medium")}>Referrer</th>
+                      <th className={cn(MONO, "pb-2.5 pr-4 text-xs uppercase tracking-wider text-muted-foreground font-medium")}>Time</th>
+                      <th className={cn(MONO, "pb-2.5 pr-4 text-xs uppercase tracking-wider text-muted-foreground font-medium")}>Country</th>
+                      <th className={cn(MONO, "pb-2.5 pr-4 text-xs uppercase tracking-wider text-muted-foreground font-medium")}>Device</th>
+                      <th className={cn(MONO, "pb-2.5 pr-4 text-xs uppercase tracking-wider text-muted-foreground font-medium")}>Browser</th>
+                      <th className={cn(MONO, "pb-2.5 text-xs uppercase tracking-wider text-muted-foreground font-medium")}>Referrer</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/30">
                   {analytics.recentClicks.map((click) => (
                     <tr key={click.id} className="text-foreground/70">
-                      <td className={cn(MONO, "py-2 pr-4 tabular-nums text-muted-foreground")}>
+                      <td className={cn(MONO, "py-2.5 pr-4 tabular-nums text-muted-foreground")}>
                         {new Date(click.clickedAt).toLocaleTimeString("en-US", {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
                       </td>
-                      <td className="py-2 pr-4">
-                        {deviceIcon(click.deviceType)}
-                        <span className="ml-1.5">{click.country}</span>
+                      <td className="py-2.5 pr-4">{click.country}</td>
+                      <td className={cn(MONO, "py-2.5 pr-4 capitalize text-muted-foreground")}>
+                        <span className="inline-flex items-center gap-1.5">
+                          {deviceIcon(click.deviceType)}
+                          {click.deviceType}
+                        </span>
                       </td>
-                      <td className={cn(MONO, "py-2 pr-4 capitalize text-muted-foreground")}>
-                        {click.deviceType}
-                      </td>
-                      <td className={cn(MONO, "py-2 pr-4 text-muted-foreground")}>
+                      <td className={cn(MONO, "py-2.5 pr-4 text-muted-foreground")}>
                         {click.browser}
                       </td>
-                      <td className={cn(MONO, "py-2 truncate max-w-[160px] text-muted-foreground")}>
+                      <td className={cn(MONO, "py-2.5 truncate max-w-[160px] text-muted-foreground")}>
                         {click.referrer}
                       </td>
                     </tr>
