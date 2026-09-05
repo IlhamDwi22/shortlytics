@@ -40,14 +40,18 @@ export function parseClientDetails(req: Request): ParsedClientDetails {
   // Determine browser name
   const browserName = browser.name || "Unknown";
 
-  // Determine cleaned referrer
+  // Determine cleaned referrer — only http(s) origins are stored; anything else
+  // (javascript:, data:, or malformed input) is treated as "direct".
   let cleanedReferrer = "direct";
   if (referrerHeader) {
-    try {
-      const refUrl = new URL(referrerHeader);
-      cleanedReferrer = refUrl.hostname.replace(/^www\./, "");
-    } catch {
-      cleanedReferrer = referrerHeader.slice(0, 100);
+    const trimmed = referrerHeader.trim().slice(0, 500);
+    if (/^https?:\/\//i.test(trimmed)) {
+      try {
+        const refUrl = new URL(trimmed);
+        cleanedReferrer = refUrl.hostname.replace(/^www\./, "").slice(0, 200);
+      } catch {
+        cleanedReferrer = "direct";
+      }
     }
   }
 

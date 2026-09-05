@@ -10,15 +10,23 @@ const BASE62_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 export const SHORT_CODE_LENGTH = 7;
 const MAX_COLLISION_ATTEMPTS = 5;
 
+// Largest multiple of 62 below 256. Bytes >= 248 are discarded so that each
+// of the 62 characters is exactly equally likely (no modulo bias).
+const REJECTION_THRESHOLD = 62 * 4; // 248
+
 /**
  * Generates a random Base62 string using CSPRNG (crypto.randomBytes).
  * Math.random() is strictly forbidden to prevent short code enumeration/prediction attacks.
  */
 export function generateBase62Code(length: number = SHORT_CODE_LENGTH): string {
-  const bytes = randomBytes(length);
   let result = "";
-  for (let i = 0; i < length; i++) {
-    result += BASE62_CHARS[bytes[i] % BASE62_CHARS.length];
+  while (result.length < length) {
+    const bytes = randomBytes((length - result.length) * 2);
+    for (const byte of bytes) {
+      if (byte >= REJECTION_THRESHOLD) continue;
+      result += BASE62_CHARS[byte % BASE62_CHARS.length];
+      if (result.length === length) break;
+    }
   }
   return result;
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -7,6 +8,9 @@ import { isSelfReferentialOrShortener } from "@/lib/anti-loop";
 import { generateUniqueShortCode } from "@/lib/shortener";
 import { createLinkRateLimit } from "@/lib/rate-limit";
 import { extractClientIp } from "@/lib/privacy";
+import { getShortUrl } from "@/lib/request";
+
+const MAX_CREATE_ATTEMPTS = 3;
 
 /**
  * POST /api/links
@@ -48,7 +52,18 @@ export async function POST(req: Request) {
     }
 
     // 3. Parse & Validate Payload
-    const body = await req.json().catch(() => ({}));
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        {
+          error: "INVALID_JSON",
+          message: "Body request harus berupa JSON yang valid.",
+        },
+        { status: 400 }
+      );
+    }
     const { originalUrl } = body;
 
     const validation = validateOriginalUrl(originalUrl);
@@ -73,26 +88,46 @@ export async function POST(req: Request) {
       );
     }
 
-    // 5. Generate CSPRNG Base62 Unique Short Code (with collision retry)
-    const shortCode = await generateUniqueShortCode(prisma);
+    // 5. Generate CSPRNG Base62 Unique Short Code & Save Link.
+    //    A P2002 (unique shortCode) can still occur if two concurrent requests
+    //    pass the pre-check — retry on that specific error.
+    let newLink: Awaited<ReturnType<typeof prisma.link.create>> | null = null;
 
-    // 6. Save Link to Database
-    const newLink = await prisma.link.create({
-      data: {
-        userId: session.user.id,
-        originalUrl: validation.normalizedUrl,
-        shortCode,
-      },
-    });
+    for (let attempt = 0; attempt < MAX_CREATE_ATTEMPTS; attempt++) {
+      const shortCode = await generateUniqueShortCode(prisma);
 
-    // 7. Construct Full Short URL
-    const host =
-      req.headers.get("x-forwarded-host") ||
-      req.headers.get("host") ||
-      process.env.APP_DOMAIN ||
-      "localhost:3000";
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
-    const shortUrl = `${protocol}://${host}/${newLink.shortCode}`;
+      try {
+        newLink = await prisma.link.create({
+          data: {
+            userId: session.user.id,
+            originalUrl: validation.normalizedUrl,
+            shortCode,
+          },
+        });
+        break;
+      } catch (err) {
+        if (
+          err instanceof Prisma.PrismaClientKnownRequestError &&
+          err.code === "P2002"
+        ) {
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    if (!newLink) {
+      return NextResponse.json(
+        {
+          error: "COLLISION_RETRY_EXHAUSTED",
+          message: "Gagal membuat short code unik, coba lagi.",
+        },
+        { status: 500 }
+      );
+    }
+
+    // 6. Construct Full Short URL
+    const shortUrl = getShortUrl(req, newLink.shortCode);
 
     return NextResponse.json(
       {
@@ -148,17 +183,10 @@ export async function GET(req: Request) {
       },
     });
 
-    const host =
-      req.headers.get("x-forwarded-host") ||
-      req.headers.get("host") ||
-      process.env.APP_DOMAIN ||
-      "localhost:3000";
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
-
     const formattedLinks = links.map((link) => ({
       id: link.id,
       shortCode: link.shortCode,
-      shortUrl: `${protocol}://${host}/${link.shortCode}`,
+      shortUrl: getShortUrl(req, link.shortCode),
       originalUrl: link.originalUrl,
       totalClicks: link._count.clicks,
       createdAt: link.createdAt.toISOString(),

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getShortUrl } from "@/lib/request";
 
 /**
  * GET /api/links/:id
@@ -25,8 +26,10 @@ export async function GET(
 
     const { id } = await props.params;
 
-    const link = await prisma.link.findUnique({
-      where: { id },
+    // Scoped query: ownership enforced atomically in the WHERE clause
+    // (returns 404 for both missing links and other users' links).
+    const link = await prisma.link.findFirst({
+      where: { id, userId: session.user.id },
       include: {
         _count: {
           select: { clicks: true },
@@ -44,28 +47,10 @@ export async function GET(
       );
     }
 
-    // IDOR Protection: verify user ownership
-    if (link.userId !== session.user.id) {
-      return NextResponse.json(
-        {
-          error: "FORBIDDEN",
-          message: "Anda tidak memiliki akses ke link ini.",
-        },
-        { status: 403 }
-      );
-    }
-
-    const host =
-      req.headers.get("x-forwarded-host") ||
-      req.headers.get("host") ||
-      process.env.APP_DOMAIN ||
-      "localhost:3000";
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
-
     return NextResponse.json({
       id: link.id,
       shortCode: link.shortCode,
-      shortUrl: `${protocol}://${host}/${link.shortCode}`,
+      shortUrl: getShortUrl(req, link.shortCode),
       originalUrl: link.originalUrl,
       isActive: link.isActive,
       totalClicks: link._count.clicks,
@@ -105,12 +90,13 @@ export async function DELETE(
 
     const { id } = await props.params;
 
-    const link = await prisma.link.findUnique({
-      where: { id },
-      select: { id: true, userId: true },
+    // Atomic scoped delete: never possible to delete another user's link, and
+    // no TOCTOU window between an ownership check and the delete itself.
+    const result = await prisma.link.deleteMany({
+      where: { id, userId: session.user.id },
     });
 
-    if (!link) {
+    if (result.count === 0) {
       return NextResponse.json(
         {
           error: "NOT_FOUND",
@@ -119,22 +105,6 @@ export async function DELETE(
         { status: 404 }
       );
     }
-
-    // IDOR Protection: verify user ownership
-    if (link.userId !== session.user.id) {
-      return NextResponse.json(
-        {
-          error: "FORBIDDEN",
-          message: "Anda tidak memiliki izin untuk menghapus link ini.",
-        },
-        { status: 403 }
-      );
-    }
-
-    // Cascade delete link and all associated clicks
-    await prisma.link.delete({
-      where: { id },
-    });
 
     return NextResponse.json({
       message: "Link beserta seluruh data analitik berhasil dihapus.",

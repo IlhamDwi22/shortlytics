@@ -1,11 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { redirectRateLimit } from "@/lib/rate-limit";
-import { extractClientIp } from "@/lib/privacy";
+import { extractClientIp, maskIp } from "@/lib/privacy";
 import { parseClientDetails } from "@/lib/user-agent";
 import { resolveGeolocation } from "@/lib/geolocation";
 
 const RESERVED_PATHS = new Set([
+  "404",
   "api",
   "login",
   "register",
@@ -29,8 +31,9 @@ export async function GET(
   try {
     const { shortCode } = await props.params;
 
-    // 1. Reserved keyword check
-    if (!shortCode || RESERVED_PATHS.has(shortCode.toLowerCase())) {
+    // 1. Reserved keyword check (exact match — generated codes are mixed-case
+    //    base62, so "/API" must be allowed even though "/api" is reserved)
+    if (!shortCode || RESERVED_PATHS.has(shortCode)) {
       return new Response("Not Found", { status: 404 });
     }
 
@@ -63,23 +66,25 @@ export async function GET(
       },
     });
 
-    // 4. If link not found, return 404
+    // 4. If link not found, render the app 404 page
     if (!link) {
-      const notFoundUrl = new URL("/404", req.url);
-      return NextResponse.redirect(notFoundUrl, { status: 302 });
+      notFound();
     }
 
     // 5. Asynchronous Click Metrics Recording (Non-blocking to preserve <300ms SLA)
     const clientDetails = parseClientDetails(req);
 
-    // Perform geolocation lookup and DB record creation in background
-    (async () => {
+    // Schedule click logging with after() so it always completes before the
+    // serverless instance is frozen — never a fire-and-forget IIFE.
+    after(async () => {
       try {
         const geo = await resolveGeolocation(ip, 1200);
         await prisma.click.create({
           data: {
             linkId: link.id,
-            ipAddress: ip,
+            // Privacy by default: raw IP is used only for the in-flight
+            // geolocation lookup and is NEVER persisted — store masked-only.
+            ipAddress: maskIp(ip),
             country: geo.country,
             city: geo.city,
             deviceType: clientDetails.deviceType,
@@ -90,7 +95,7 @@ export async function GET(
       } catch (err) {
         console.error(`Click logging error for shortCode [${shortCode}]:`, err);
       }
-    })();
+    });
 
     // 6. Return Fast HTTP 302 Redirect with no-cache headers
     return NextResponse.redirect(link.originalUrl, {
@@ -103,6 +108,14 @@ export async function GET(
       },
     });
   } catch (error) {
+    // `notFound()` throws NEXT_HTTP_ERROR_FALLBACK;404 — must propagate, not
+    // swallow it (otherwise every missing short code becomes a 500).
+    if (error instanceof Error && "digest" in error) {
+      const digest = (error as { digest?: string }).digest;
+      if (digest?.startsWith("NEXT_HTTP_ERROR_FALLBACK;404")) {
+        throw error;
+      }
+    }
     console.error("Redirect Handler Error:", error);
     return new Response("Internal Server Error", { status: 500 });
   }

@@ -25,7 +25,18 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        {
+          error: "INVALID_JSON",
+          message: "Body request harus berupa JSON yang valid.",
+        },
+        { status: 400 }
+      );
+    }
     const { email, password, name } = body;
 
     // 1. Validation

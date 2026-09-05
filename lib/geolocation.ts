@@ -3,12 +3,12 @@
  * Resolves approximate Country and City from visitor IP address (TechSpec Section 3 & 8)
  */
 
+import { isPrivateIp } from "@/lib/privacy";
+
 export interface GeolocationResult {
   country: string;
   city: string;
 }
-
-const LOCAL_IPS = new Set(["127.0.0.1", "::1", "localhost", "::ffff:127.0.0.1"]);
 
 /**
  * Resolves approximate geolocation from IP with timeout protection.
@@ -20,14 +20,9 @@ export async function resolveGeolocation(
 ): Promise<GeolocationResult> {
   const cleanIp = ip.trim();
 
-  // Local/Private IP check
-  if (
-    LOCAL_IPS.has(cleanIp) ||
-    cleanIp.startsWith("192.168.") ||
-    cleanIp.startsWith("10.") ||
-    cleanIp.startsWith("172.16.") ||
-    cleanIp === "unknown"
-  ) {
+  // Local/Private IP check — never send RFC 1918 / ULA / loopback addresses to
+  // an external API (leaks internal network topology).
+  if (isPrivateIp(cleanIp) || cleanIp === "unknown") {
     return {
       country: "Local Network",
       city: "Localhost",
