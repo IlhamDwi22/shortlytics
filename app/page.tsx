@@ -23,6 +23,7 @@ import { RollingText } from "@/components/rolling-text";
 import { CountUp, LiveDot, Reveal } from "@/components/live";
 import Aurora from "@/components/aurora";
 import { Logo, LogoIcon } from "@/components/logo";
+import { FaqAccordion } from "@/components/faq-accordion";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -111,91 +112,75 @@ export default function LandingPage() {
       {/* 1 · Nav — Floating Pill Navbar */}
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 flex justify-center pointer-events-none transition-all duration-300 ease-out",
-          isScrolled
-            ? "pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8"
-            : "pt-0 px-4 sm:px-8 lg:px-12",
+          "fixed inset-x-0 top-0 z-50 pointer-events-none transition-all duration-300 ease-out",
+          isScrolled ? "pt-3 sm:pt-4" : "pt-0",
         )}
       >
         <div
           className={cn(
-            "pointer-events-auto flex w-full items-center justify-between transition-all duration-300 ease-out",
+            "mx-auto w-full transition-all duration-300 ease-out",
             isScrolled
-              ? "max-w-7xl h-14 sm:h-16 px-5 sm:px-7 rounded-2xl bg-zinc-950/45 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/80"
-              : "max-w-[96rem] h-16 sm:h-20 px-0 bg-transparent border-transparent shadow-none rounded-none",
+              ? "max-w-7xl px-4 sm:px-6 lg:px-8"
+              : "max-w-[96rem] px-4 sm:px-8 lg:px-12",
           )}
         >
-          <Link
-            href="/"
+          <div
             className={cn(
-              "group flex items-center transition-colors duration-300",
-              isScrolled ? "text-foreground" : "text-zinc-950"
+              "pointer-events-auto flex w-full items-center justify-between transition-all duration-300 ease-out",
+              isScrolled
+                ? "h-14 sm:h-16 px-5 sm:px-7 rounded-2xl bg-zinc-950/60 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/80"
+                : "h-16 sm:h-20 px-0 bg-transparent border-transparent shadow-none rounded-none",
             )}
           >
-            <Logo
-              concept="monogram"
-              size="md"
-              animated={true}
-              textClassName={isScrolled ? "text-foreground" : "text-zinc-950"}
-            />
-          </Link>
+            <Link
+              href="/"
+              className={cn(
+                "group flex items-center transition-colors duration-300",
+                isScrolled ? "text-foreground" : "text-zinc-950",
+              )}
+            >
+              <Logo
+                concept="monogram"
+                size="md"
+                animated={true}
+                textClassName={isScrolled ? "text-foreground" : "text-zinc-950"}
+              />
+            </Link>
 
-          <nav className="hidden items-center gap-8 md:flex">
-            {[
-              ["Analytics", "#analytics"],
-              ["Features", "#features"],
-              ["How it works", "#how-it-works"],
-            ].map(([label, href]) => (
-              <a
-                key={href}
-                href={href}
-                className={cn(
-                  MONO,
-                  "text-xs uppercase tracking-[0.16em] font-semibold transition-colors duration-300",
-                  isScrolled
-                    ? "text-zinc-400 hover:text-lime-300"
-                    : "text-zinc-950/80 hover:text-zinc-950",
-                )}
-              >
-                {label}
-              </a>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2.5">
-            {session?.user ? (
-              <Link
-                href="/dashboard"
-                className={cn(
-                  buttonVariants({ size: isScrolled ? "sm" : "default" }),
-                  "rounded-xl font-semibold transition-all duration-300 shadow-sm",
-                  isScrolled
-                    ? "bg-lime-400 text-zinc-950 hover:bg-lime-300"
-                    : "bg-zinc-950 text-lime-300 hover:bg-zinc-900 border border-zinc-950/30",
-                )}
-              >
-                <RollingText>Dashboard</RollingText>
-                <ArrowUpRight className="ml-1 size-4" />
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
+            <nav className="hidden items-center gap-8 md:flex">
+              {[
+                ["Analytics", "#analytics"],
+                ["Features", "#features"],
+                ["How it works", "#how-it-works"],
+                ["FAQ", "#faq"],
+              ].map(([label, href]) => (
+                <a
+                  key={href}
+                  href={href}
                   className={cn(
-                    buttonVariants({
-                      size: isScrolled ? "sm" : "default",
-                      variant: "ghost",
-                    }),
-                    "hidden rounded-xl font-semibold transition-colors duration-300 sm:inline-flex",
+                    MONO,
+                    "group relative py-1 text-xs uppercase tracking-[0.16em] font-semibold transition-colors duration-300",
                     isScrolled
-                      ? "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      : "text-zinc-950/80 hover:bg-zinc-950/10 hover:text-zinc-950",
+                      ? "text-zinc-400 hover:text-lime-300"
+                      : "text-zinc-950/80 hover:text-zinc-950",
                   )}
                 >
-                  Log in
-                </Link>
+                  {label}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "absolute -bottom-0.5 left-0 right-0 h-[2px] rounded-full bg-lime-400 shadow-[0_0_8px_rgba(163,230,53,0.6)]",
+                      "scale-x-0 origin-left transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-x-100",
+                    )}
+                  />
+                </a>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-2.5">
+              {session?.user ? (
                 <Link
-                  href="/register"
+                  href="/dashboard"
                   className={cn(
                     buttonVariants({ size: isScrolled ? "sm" : "default" }),
                     "rounded-xl font-semibold transition-all duration-300 shadow-sm",
@@ -204,11 +189,42 @@ export default function LandingPage() {
                       : "bg-zinc-950 text-lime-300 hover:bg-zinc-900 border border-zinc-950/30",
                   )}
                 >
-                  <RollingText>Get started</RollingText>
+                  <RollingText>Dashboard</RollingText>
                   <ArrowUpRight className="ml-1 size-4" />
                 </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className={cn(
+                      buttonVariants({
+                        size: isScrolled ? "sm" : "default",
+                        variant: "ghost",
+                      }),
+                      "hidden rounded-xl font-semibold transition-colors duration-300 sm:inline-flex",
+                      isScrolled
+                        ? "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        : "text-zinc-950/80 hover:bg-zinc-950/10 hover:text-zinc-950",
+                    )}
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/register"
+                    className={cn(
+                      buttonVariants({ size: isScrolled ? "sm" : "default" }),
+                      "rounded-xl font-semibold transition-all duration-300 shadow-sm",
+                      isScrolled
+                        ? "bg-lime-400 text-zinc-950 hover:bg-lime-300"
+                        : "bg-zinc-950 text-lime-300 hover:bg-zinc-900 border border-zinc-950/30",
+                    )}
+                  >
+                    <RollingText>Get started</RollingText>
+                    <ArrowUpRight className="ml-1 size-4" />
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -829,7 +845,58 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 6 · Final CTA */}
+      {/* 6 · FAQ */}
+      <section id="faq" className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-4">
+              <Reveal>
+                <span
+                  className={cn(
+                    MONO,
+                    "text-xs uppercase tracking-[0.16em] text-lime-300",
+                  )}
+                >
+                  System Knowledge
+                </span>
+                <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                  Frequently Asked Questions
+                </h2>
+                <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+                  Technical and transparent information regarding Shortlytics'
+                  architecture, privacy security, and analytics reliability.
+                </p>
+
+                <div className="mt-8 hidden lg:block">
+                  <div className="rounded-xl border border-border/80 bg-card/40 p-5 backdrop-blur-sm">
+                    <p
+                      className={cn(
+                        MONO,
+                        "text-xs font-semibold text-lime-400",
+                      )}
+                    >
+                      {"// telemetry disclaimer"}
+                    </p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      Shortlytics never sells visitor data or embeds third-party
+                      trackers. Privacy is a technical specification, not an
+                      optional feature.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            <div className="lg:col-span-8">
+              <Reveal delay={0.06}>
+                <FaqAccordion />
+              </Reveal>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7 · Final CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <Reveal>
           <div className="relative overflow-hidden rounded-xl border border-lime-400/30 bg-card px-8 py-16 text-center sm:px-16">
