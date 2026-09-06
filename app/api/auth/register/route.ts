@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { authRateLimit } from "@/lib/rate-limit";
 import { extractClientIp } from "@/lib/privacy";
+import { MIN_PASSWORD_LENGTH } from "@/lib/validators";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -50,11 +51,11 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!password || typeof password !== "string" || password.length < 8) {
+    if (!password || typeof password !== "string" || password.length < MIN_PASSWORD_LENGTH) {
       return NextResponse.json(
         {
           error: "INVALID_PASSWORD",
-          message: "Password must be at least 8 characters.",
+          message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
         },
         { status: 400 }
       );

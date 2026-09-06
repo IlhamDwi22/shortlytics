@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { validateOriginalUrl } from "@/lib/validators";
 import { isSelfReferentialOrShortener } from "@/lib/anti-loop";
@@ -19,8 +18,8 @@ const MAX_CREATE_ATTEMPTS = 3;
 export async function POST(req: Request) {
   try {
     // 1. Authentication Check
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await requireUser();
+    if (!userId) {
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
@@ -32,7 +31,7 @@ export async function POST(req: Request) {
 
     // 2. Rate Limiting Check (20 req / min)
     const ip = extractClientIp(req);
-    const rateLimitIdentifier = `${session.user.id}:${ip}`;
+    const rateLimitIdentifier = `${userId}:${ip}`;
     const { success, reset } = await createLinkRateLimit.limit(rateLimitIdentifier);
 
     if (!success) {
@@ -99,7 +98,7 @@ export async function POST(req: Request) {
       try {
         newLink = await prisma.link.create({
           data: {
-            userId: session.user.id,
+            userId,
             originalUrl: validation.normalizedUrl,
             shortCode,
           },
@@ -157,8 +156,8 @@ export async function POST(req: Request) {
  */
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await requireUser();
+    if (!userId) {
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
@@ -170,7 +169,7 @@ export async function GET(req: Request) {
 
     const links = await prisma.link.findMany({
       where: {
-        userId: session.user.id,
+        userId,
         isActive: true,
       },
       orderBy: {

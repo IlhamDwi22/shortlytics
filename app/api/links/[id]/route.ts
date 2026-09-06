@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getShortUrl } from "@/lib/request";
 
@@ -13,8 +12,8 @@ export async function GET(
   props: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await requireUser();
+    if (!userId) {
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
@@ -29,7 +28,7 @@ export async function GET(
     // Scoped query: ownership enforced atomically in the WHERE clause
     // (returns 404 for both missing links and other users' links).
     const link = await prisma.link.findFirst({
-      where: { id, userId: session.user.id },
+      where: { id, userId },
       include: {
         _count: {
           select: { clicks: true },
@@ -77,8 +76,8 @@ export async function DELETE(
   props: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await requireUser();
+    if (!userId) {
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
@@ -93,7 +92,7 @@ export async function DELETE(
     // Atomic scoped delete: never possible to delete another user's link, and
     // no TOCTOU window between an ownership check and the delete itself.
     const result = await prisma.link.deleteMany({
-      where: { id, userId: session.user.id },
+      where: { id, userId },
     });
 
     if (result.count === 0) {

@@ -52,32 +52,36 @@ interface RateLimiterInterface {
   limit: (identifier: string) => Promise<{ success: boolean; reset: number }>;
 }
 
+/**
+ * Build a limiter, preferring Upstash Redis when configured and falling back to
+ * an in-memory sliding window for local development.
+ */
+function createRateLimiter(
+  prefix: string,
+  maxRequests: number,
+  windowSeconds: number
+): RateLimiterInterface {
+  if (!redis) return new InMemoryRateLimiter(maxRequests, windowSeconds);
+  return new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(maxRequests, `${windowSeconds} s`),
+    prefix,
+  });
+}
+
 // 1. Create Link Rate Limiter: 20 req / 1 min
-export const createLinkRateLimit: RateLimiterInterface =
-  redis
-    ? new Ratelimit({
-        redis,
-        limiter: Ratelimit.slidingWindow(20, "1 m"),
-        prefix: "ratelimit:create-link",
-      })
-    : new InMemoryRateLimiter(20, 60);
+export const createLinkRateLimit = createRateLimiter(
+  "ratelimit:create-link",
+  20,
+  60
+);
 
 // 2. Redirect Rate Limiter: 100 req / 1 min
-export const redirectRateLimit: RateLimiterInterface =
-  redis
-    ? new Ratelimit({
-        redis,
-        limiter: Ratelimit.slidingWindow(100, "1 m"),
-        prefix: "ratelimit:redirect",
-      })
-    : new InMemoryRateLimiter(100, 60);
+export const redirectRateLimit = createRateLimiter(
+  "ratelimit:redirect",
+  100,
+  60
+);
 
 // 3. Auth Rate Limiter: 5 req / 1 min
-export const authRateLimit: RateLimiterInterface =
-  redis
-    ? new Ratelimit({
-        redis,
-        limiter: Ratelimit.slidingWindow(5, "1 m"),
-        prefix: "ratelimit:auth",
-      })
-    : new InMemoryRateLimiter(5, 60);
+export const authRateLimit = createRateLimiter("ratelimit:auth", 5, 60);

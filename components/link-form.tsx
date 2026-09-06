@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RollingText } from "@/components/rolling-text";
 import { cn } from "@/lib/utils";
+import { fetchJson, ApiError, type CreateLinkResponse } from "@/lib/api-types";
 
 const MONO = "font-mono tracking-tight";
 
@@ -31,20 +32,11 @@ export function LinkForm({ onCreated }: LinkFormProps) {
     setError(null);
 
     try {
-      const res = await fetch("/api/links", {
+      const data = await fetchJson<CreateLinkResponse>("/api/links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ originalUrl: url.trim() }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Failed to create short link.");
-        toast.error(data.message || "Failed to create short link.");
-        setIsLoading(false);
-        return;
-      }
 
       toast.success("Short link created!", {
         description: data.shortUrl,
@@ -60,9 +52,11 @@ export function LinkForm({ onCreated }: LinkFormProps) {
       setUrl("");
       setIsLoading(false);
       onCreated?.();
-    } catch {
-      setError("Failed to connect to the server. Try again.");
-      toast.error("Network error. Please try again.");
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "Failed to connect to the server. Try again.";
+      setError(message);
+      toast.error(message);
       setIsLoading(false);
     }
   };

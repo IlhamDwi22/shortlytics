@@ -25,38 +25,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClicksOverTimeChart } from "@/components/charts/clicks-over-time-chart";
 import { DeviceBreakdownChart } from "@/components/charts/device-breakdown-chart";
 import { useRealtimeAnalytics } from "@/hooks/useRealtimeAnalytics";
+import { useCopy } from "@/hooks/useCopy";
 import { cn } from "@/lib/utils";
+import {
+  fetchJson,
+  type LinkDetail,
+  type AnalyticsResponse,
+} from "@/lib/api-types";
 
 const MONO = "font-mono tracking-tight";
-
-interface LinkDetail {
-  id: string;
-  shortCode: string;
-  shortUrl: string;
-  originalUrl: string;
-  isActive: boolean;
-  totalClicks: number;
-  createdAt: string;
-}
-
-interface AnalyticsData {
-  totalClicks: number;
-  clicksByDay: { date: string; count: number }[];
-  deviceBreakdown: { type: string; count: number }[];
-  browserBreakdown: { browser: string; count: number }[];
-  topReferrers: { referrer: string; count: number }[];
-  topCountries: { country: string; count: number }[];
-  recentClicks: {
-    id: string;
-    clickedAt: string;
-    maskedIp: string;
-    country: string;
-    city: string;
-    deviceType: string;
-    browser: string;
-    referrer: string;
-  }[];
-}
 
 const DEVICE_ICONS: Record<string, React.ElementType> = {
   mobile: Smartphone,
@@ -71,10 +48,10 @@ export default function LinkDetailPage() {
   const linkId = Array.isArray(rawLinkId) ? rawLinkId[0] : (rawLinkId as string) ?? "";
 
   const [link, setLink] = React.useState<LinkDetail | null>(null);
-  const [analytics, setAnalytics] = React.useState<AnalyticsData | null>(null);
+  const [analytics, setAnalytics] = React.useState<AnalyticsResponse | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [copied, setCopied] = React.useState(false);
   const [analyticsError, setAnalyticsError] = React.useState<string | null>(null);
+  const { copied, copy } = useCopy();
 
   const { totalClicks: liveClicks, isConnected } = useRealtimeAnalytics(linkId, {
     initialTotalClicks: link?.totalClicks ?? 0,
@@ -88,26 +65,26 @@ export default function LinkDetailPage() {
       }
       setAnalyticsError(null);
       try {
-        const [linkRes, analyticsRes] = await Promise.all([
-          fetch(`/api/links/${linkId}`),
-          fetch(`/api/links/${linkId}/analytics`),
+        const [linkData, analyticsData] = await Promise.all([
+          fetchJson<LinkDetail>(`/api/links/${linkId}`).catch(() => null),
+          fetchJson<AnalyticsResponse>(`/api/links/${linkId}/analytics`).catch(
+            () => null
+          ),
         ]);
 
-        if (!linkRes.ok) {
+        if (!linkData) {
           router.push("/dashboard");
           return;
         }
 
-        const linkData = await linkRes.json();
         setLink(linkData);
 
-        if (!analyticsRes.ok) {
+        if (!analyticsData) {
           // Don't silently drop analytics failures — surface them with a banner.
           setAnalyticsError("Failed to load analytics data.");
           setAnalytics(null);
           return;
         }
-        const analyticsData = await analyticsRes.json();
         setAnalytics(analyticsData);
       } catch {
         router.push("/dashboard");
@@ -119,14 +96,8 @@ export default function LinkDetailPage() {
 
   const copyToClipboard = async () => {
     if (!link) return;
-    try {
-      await navigator.clipboard.writeText(link.shortUrl);
-      setCopied(true);
-      toast.success("Copied to clipboard!");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Failed to copy.");
-    }
+    const ok = await copy(link.shortUrl);
+    toast.success(ok ? "Copied to clipboard!" : "Failed to copy.");
   };
 
   if (isLoading) {

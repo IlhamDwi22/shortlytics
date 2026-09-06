@@ -24,9 +24,13 @@ import { CountUp, LiveDot, Reveal } from "@/components/live";
 import Aurora from "@/components/aurora";
 import { Logo, LogoIcon } from "@/components/logo";
 import { FaqAccordion } from "@/components/faq-accordion";
+import { useCopy } from "@/hooks/useCopy";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
+
+// Public app domain for the landing demo console (inlined at build time).
+const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN || "shortlytics.app";
 
 /* ── live data model ──────────────────────────────────────────────────── */
 const REFERRERS = [
@@ -68,8 +72,8 @@ export default function LandingPage() {
     "idle" | "loading" | "done" | "error"
   >("idle");
   const [shortUrl, setShortUrl] = React.useState("");
-  const [copied, setCopied] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const { copied, copy: copyClipboard } = useCopy();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -89,20 +93,14 @@ export default function LandingPage() {
     }
     setState("loading");
     setTimeout(() => {
-      setShortUrl("https://shortlytics.app/aZ3kP9");
+      setShortUrl(`https://${APP_DOMAIN}/aZ3kP9`);
       setState("done");
-      setCopied(false);
     }, 650);
   };
 
   const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(shortUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard unavailable */
-    }
+    // Clipboard may be unavailable; silently ignore for the demo console.
+    await copyClipboard(shortUrl);
   };
 
   return (
@@ -140,7 +138,6 @@ export default function LandingPage() {
               )}
             >
               <Logo
-                concept="monogram"
                 size="md"
                 animated={true}
                 textClassName={isScrolled ? "text-foreground" : "text-zinc-950"}
@@ -500,7 +497,7 @@ export default function LandingPage() {
                   <span
                     className={cn(MONO, "ml-2 text-xs text-muted-foreground")}
                   >
-                    shortlytics.app/analytics
+                    {APP_DOMAIN}/analytics
                   </span>
                 </div>
                 <span
@@ -863,7 +860,7 @@ export default function LandingPage() {
                   Frequently Asked Questions
                 </h2>
                 <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                  Technical and transparent information regarding Shortlytics'
+                  Technical and transparent information regarding Shortlytics&apos;
                   architecture, privacy security, and analytics reliability.
                 </p>
 
@@ -939,7 +936,7 @@ export default function LandingPage() {
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-10 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <LogoIcon concept="monogram" size="xs" animated={false} />
+            <LogoIcon size="xs" animated={false} />
             <span className={cn(MONO, "text-sm text-muted-foreground")}>
               © 2026 shortlytics
             </span>

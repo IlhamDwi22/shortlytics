@@ -3,6 +3,8 @@
  * Prevents infinite redirect loops and shortener chaining based on TechSpec Section 6.3 & PRD Section 13.2
  */
 
+import { getAppDomain } from "@/lib/request";
+
 const BLOCKED_SHORTENER_DOMAINS = [
   "bit.ly",
   "tinyurl.com",
@@ -27,8 +29,8 @@ export function isSelfReferentialOrShortener(originalUrl: string): boolean {
     const parsed = new URL(originalUrl);
     const hostname = parsed.hostname.toLowerCase();
 
-    // 1. Check against own application domain
-    const ownDomain = (process.env.APP_DOMAIN || "shortlytics.app").toLowerCase();
+    // 1. Check against own application domain (single source via getAppDomain)
+    const ownDomain = (getAppDomain() || "shortlytics.app").toLowerCase();
     if (
       hostname === ownDomain ||
       hostname.endsWith(`.${ownDomain}`) ||

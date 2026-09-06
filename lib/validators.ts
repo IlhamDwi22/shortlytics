@@ -5,6 +5,9 @@
 
 const ALLOWED_SCHEMES = ["http:", "https:"];
 export const MAX_URL_LENGTH = 2048;
+// Minimum password length shared across client & server validation so the two
+// layers can never drift out of sync.
+export const MIN_PASSWORD_LENGTH = 8;
 
 export interface ValidationResult {
   valid: boolean;

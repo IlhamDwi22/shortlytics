@@ -15,6 +15,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useCopy } from "@/hooks/useCopy";
+import { fetchJson, ApiError, type DeleteLinkResponse } from "@/lib/api-types";
 
 const MONO = "font-mono tracking-tight";
 
@@ -36,36 +38,26 @@ export function LinkCard({
   createdAt,
   onDelete,
 }: LinkCardProps) {
-  const [copied, setCopied] = React.useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const { copied, copy } = useCopy();
 
   const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(shortUrl);
-      setCopied(true);
-      toast.success("Copied to clipboard!");
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error("Failed to copy.");
-    }
+    const ok = await copy(shortUrl);
+    toast.success(ok ? "Copied to clipboard!" : "Failed to copy.");
   };
 
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/links/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.message || "Failed to delete link.");
-        setIsDeleting(false);
-        return;
-      }
+      await fetchJson<DeleteLinkResponse>(`/api/links/${id}`, { method: "DELETE" });
       toast.success("Link deleted.");
       setShowDeleteDialog(false);
       onDelete?.(id);
-    } catch {
-      toast.error("Network error. Please try again.");
+    } catch (err) {
+      toast.error(
+        err instanceof ApiError ? err.message : "Network error. Please try again."
+      );
     }
     setIsDeleting(false);
   };

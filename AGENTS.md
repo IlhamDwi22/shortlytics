@@ -47,10 +47,27 @@ before implementing features.
 
 ## Key implementation notes
 
+- Authenticated API routes use `requireUser()` (`lib/auth.ts`) — one helper that
+  returns `Promise<string | null>` from the session. Do NOT call
+  `getServerSession`/`authOptions` directly in route handlers.
+- Ownership is enforced atomically (scoped `where: { id, userId }`) in
+  `app/api/links/[id]/route.ts`, `[id]/analytics/route.ts`, and
+  `[id]/stream/route.ts` — returns 404 for other users' links (no IDOR leak),
+  never a separate 403 ownership check.
+- Client fetches go through `fetchJson<T>` (`lib/api-types.ts`): throws `ApiError`
+  on non-2xx (with the server's `message`/`error` code), never implicitly-typed
+  `res.json()`. Canonical API response shapes (`.ApiLink`, `ListLinksResponse`,
+  `AnalyticsResponse`, etc.) live there and mirror the `app/api/` JSON contracts.
+- Clipboard copy is centralized in `hooks/useCopy.ts` (returns `{ copied, copy }`);
+  do not inline `navigator.clipboard` per-component.
+- Password minimum length is a single shared constant (`MIN_PASSWORD_LENGTH` in
+  `lib/validators.ts`) used by both the register page and `register/route.ts`.
+- Domain for client-side display is `process.env.NEXT_PUBLIC_APP_DOMAIN`
+  (inlined at build; landing page demo). Server-side URLs use
+  `getAppDomain()`/`getBaseUrl()` in `lib/request.ts` (`APP_DOMAIN` is
+  server-only and must not be imported by client components).
 - Short codes: CSPRNG base62 via rejection sampling (`lib/shortener.ts`) + up to 3
   retries on Prisma `P2002` collision (`app/api/links/route.ts`).
-- Ownership is enforced atomically (scoped `where: { id, userId }`) in
-  `app/api/links/[id]/route.ts` — returns 404 for other users' links (no IDOR leak).
 - Client IP: `extractClientIp` trusts only the rightmost public address in
   `x-forwarded-for` and never returns private/reserved addresses
   (`lib/privacy.ts`); `isPrivateIp` also guards geolocation (`lib/geolocation.ts`).

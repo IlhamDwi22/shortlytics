@@ -26,7 +26,7 @@ export default function DashboardLayout({
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link href="/" className="group flex items-center">
-              <Logo concept="monogram" size="md" />
+              <Logo size="md" />
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">
@@ -76,7 +76,7 @@ export default function DashboardLayout({
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <LogoIcon concept="monogram" size="xs" animated={false} />
+            <LogoIcon size="xs" animated={false} />
             <span className={cn(MONO, "text-sm text-muted-foreground")}>
               © 2026 shortlytics
             </span>

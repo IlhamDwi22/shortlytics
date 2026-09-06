@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 // Hard cap on concurrent SSE streams per user. This is in-memory (per server
@@ -18,16 +17,16 @@ export async function GET(
 ) {
   try {
     // 1. Authentication Check
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await requireUser();
+    if (!userId) {
       return new Response("Unauthorized", { status: 401 });
     }
 
     const { id } = await props.params;
 
-    // 2. Ownership Verification
-    const link = await prisma.link.findUnique({
-      where: { id },
+    // 2. Ownership Verification (scoped — 404 for both missing & not-owned)
+    const link = await prisma.link.findFirst({
+      where: { id, userId },
       select: { id: true, userId: true },
     });
 
@@ -35,16 +34,12 @@ export async function GET(
       return new Response("Not Found", { status: 404 });
     }
 
-    if (link.userId !== session.user.id) {
-      return new Response("Forbidden", { status: 403 });
-    }
-
     // 3. Per-user connection cap (fail fast before opening the stream)
-    const current = activeStreams.get(session.user.id) || 0;
+    const current = activeStreams.get(userId) || 0;
     if (current >= MAX_STREAMS_PER_USER) {
       return new Response("Too Many Streams", { status: 429 });
     }
-    activeStreams.set(session.user.id, current + 1);
+    activeStreams.set(userId, current + 1);
 
     const encoder = new TextEncoder();
 
@@ -60,11 +55,11 @@ export async function GET(
         const safeClose = () => {
           if (isClosed) return;
           isClosed = true;
-          const remaining = activeStreams.get(session.user.id) || 0;
+          const remaining = activeStreams.get(userId) || 0;
           if (remaining > 1) {
-            activeStreams.set(session.user.id, remaining - 1);
+            activeStreams.set(userId, remaining - 1);
           } else {
-            activeStreams.delete(session.user.id);
+            activeStreams.delete(userId);
           }
           if (pollIntervalRef) clearInterval(pollIntervalRef);
           if (heartbeatIntervalRef) clearInterval(heartbeatIntervalRef);

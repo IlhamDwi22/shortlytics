@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { maskIp } from "@/lib/privacy";
 import { getShortUrl } from "@/lib/request";
@@ -15,8 +14,8 @@ export async function GET(
 ) {
   try {
     // 1. Authentication Check
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await requireUser();
+    if (!userId) {
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
@@ -28,9 +27,10 @@ export async function GET(
 
     const { id } = await props.params;
 
-    // 2. Fetch Link and Verify Ownership (IDOR Protection)
-    const link = await prisma.link.findUnique({
-      where: { id },
+    // 2. Fetch Link with scoped ownership (IDOR Protection — returns 404 for
+    //    both missing links and other users' links, no existence leak).
+    const link = await prisma.link.findFirst({
+      where: { id, userId },
       select: {
         id: true,
         userId: true,
@@ -47,16 +47,6 @@ export async function GET(
           message: "Link not found.",
         },
         { status: 404 }
-      );
-    }
-
-    if (link.userId !== session.user.id) {
-      return NextResponse.json(
-        {
-          error: "FORBIDDEN",
-          message: "You do not have access to this link's analytics data.",
-        },
-        { status: 403 }
       );
     }
 

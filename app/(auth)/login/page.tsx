@@ -158,7 +158,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
           <Link href="/" className="group flex items-center">
-            <Logo concept="monogram" size="md" />
+            <Logo size="md" />
           </Link>
           <h1 className="mt-7 font-display text-4xl font-bold tracking-tight text-foreground">
             Welcome back

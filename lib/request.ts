@@ -6,8 +6,18 @@
  * (production) it is always used; otherwise fall back to the `host` header.
  */
 
-export function getBaseUrl(req: Request): string {
+/**
+ * Single source of truth for the application's configured domain.
+ * Returns the trimmed `APP_DOMAIN` env value, or `null` when unset so callers
+ * can apply their own (server-only) fallback.
+ */
+export function getAppDomain(): string | null {
   const appDomain = process.env.APP_DOMAIN?.trim();
+  return appDomain && appDomain.length > 0 ? appDomain : null;
+}
+
+export function getBaseUrl(req: Request): string {
+  const appDomain = getAppDomain();
   if (appDomain) {
     return `https://${appDomain}`;
   }

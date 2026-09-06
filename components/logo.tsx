@@ -3,18 +3,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export type LogoConcept = "bracket" | "monogram" | "slash";
 export type LogoVariant = "full" | "icon";
 export type LogoSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 export interface LogoProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Concept variation:
-   * - "bracket": Concept 1 — Terminal Brackets enclosing a live link node [ • ]
-   * - "monogram": Concept 2 — Interlocking Chain Link Monogram forming "S" with telemetry dot
-   * - "slash": Concept 3 — Instrument Protocol Badge (s/ + signal beacon)
-   */
-  concept?: LogoConcept;
   /**
    * "full" renders icon + wordmark "shortlytics"
    * "icon" renders icon only (for favicon, mobile header, compact spaces)
@@ -57,74 +49,7 @@ const SIZE_MAP = {
 };
 
 /**
- * Concept 1: "Signal Bracket" (Terminal Node)
- * Developer terminal bracket [ ] with 2px stroke and moderate 4px radius,
- * framing a live link bridge and electric lime signal dot.
- */
-function BracketIcon({
-  size,
-  animated = true,
-  className,
-  accentColor = "#A3E635",
-}: {
-  size: number;
-  animated?: boolean;
-  className?: string;
-  accentColor?: string;
-}) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0 select-none", className)}
-      aria-hidden="true"
-    >
-      {/* Left Bracket */}
-      <path
-        d="M 8 4.5 H 5.5 C 4.12 4.5 3 5.62 3 7 V 17 C 3 18.38 4.12 19.5 5.5 19.5 H 8"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Right Bracket */}
-      <path
-        d="M 16 4.5 H 18.5 C 19.88 4.5 21 5.62 21 7 V 17 C 21 18.38 19.88 19.5 18.5 19.5 H 16"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Short Link Bridge */}
-      <path
-        d="M 7.5 15.5 L 13.5 9.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Pulse Beacon Ring */}
-      {animated && (
-        <circle
-          cx="16.5"
-          cy="7.5"
-          r="4.5"
-          stroke={accentColor}
-          strokeWidth="1.2"
-          className="animate-ping origin-[16.5px_7.5px] opacity-75"
-        />
-      )}
-      {/* Live Signal Node (Electric Lime) */}
-      <circle cx="16.5" cy="7.5" r="2.25" fill={accentColor} />
-    </svg>
-  );
-}
-
-/**
- * Concept 2: "Linked Signal S" (Monogram Link) — RECOMMENDED
+ * Concept: "Linked Signal S" (Monogram Link)
  * Geometric "S" lettermark constructed from interconnected link chain loops,
  * culminating in an active electric lime live signal dot at the upper-right terminal.
  */
@@ -190,85 +115,12 @@ function MonogramIcon({
   );
 }
 
-/**
- * Concept 3: "Protocol Slash" (Data Instrument Frame)
- * Modular data instrument container (moderate 5px radius) housing the "s/" protocol mark
- * and a live telemetry beacon.
- */
-function SlashIcon({
-  size,
-  animated = true,
-  className,
-  accentColor = "#A3E635",
-}: {
-  size: number;
-  animated?: boolean;
-  className?: string;
-  accentColor?: string;
-}) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0 select-none", className)}
-      aria-hidden="true"
-    >
-      {/* Bounding Instrument Frame (moderate radius 5px) */}
-      <rect
-        x="2.5"
-        y="2.5"
-        width="19"
-        height="19"
-        rx="5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Monogram Lowercase s */}
-      <path
-        d="M 9.5 9 H 7.5 C 6.67 9 6 9.67 6 10.5 C 6 11.33 6.67 12 7.5 12 H 9.5 C 10.33 12 11 12.67 11 13.5 C 11 14.33 10.33 15 9.5 15 H 7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Forward Link Slash */}
-      <path
-        d="M 12.5 16.5 L 15.5 7.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Pulse Beacon Ring */}
-      {animated && (
-        <circle
-          cx="18.5"
-          cy="5.5"
-          r="4"
-          stroke={accentColor}
-          strokeWidth="1.2"
-          className="animate-ping origin-[18.5px_5.5px] opacity-75"
-        />
-      )}
-      {/* Live Signal Node (Electric Lime) */}
-      <circle cx="18.5" cy="5.5" r="2.25" fill={accentColor} />
-    </svg>
-  );
-}
-
 export function LogoIcon({
-  concept = "monogram",
   size = "md",
   animated = true,
   className,
   accentColor = "#A3E635",
 }: {
-  concept?: LogoConcept;
   size?: LogoSize;
   animated?: boolean;
   className?: string;
@@ -276,40 +128,17 @@ export function LogoIcon({
 }) {
   const pixelSize = SIZE_MAP[size].icon;
 
-  switch (concept) {
-    case "bracket":
-      return (
-        <BracketIcon
-          size={pixelSize}
-          animated={animated}
-          className={className}
-          accentColor={accentColor}
-        />
-      );
-    case "slash":
-      return (
-        <SlashIcon
-          size={pixelSize}
-          animated={animated}
-          className={className}
-          accentColor={accentColor}
-        />
-      );
-    case "monogram":
-    default:
-      return (
-        <MonogramIcon
-          size={pixelSize}
-          animated={animated}
-          className={className}
-          accentColor={accentColor}
-        />
-      );
-  }
+  return (
+    <MonogramIcon
+      size={pixelSize}
+      animated={animated}
+      className={className}
+      accentColor={accentColor}
+    />
+  );
 }
 
 export function Logo({
-  concept = "monogram",
   variant = "full",
   size = "md",
   animated = true,
@@ -325,7 +154,6 @@ export function Logo({
     return (
       <div className={cn("inline-flex items-center justify-center", className)} {...props}>
         <LogoIcon
-          concept={concept}
           size={size}
           animated={animated}
           className={iconClassName}
@@ -341,7 +169,6 @@ export function Logo({
       {...props}
     >
       <LogoIcon
-        concept={concept}
         size={size}
         animated={animated}
         className={iconClassName}

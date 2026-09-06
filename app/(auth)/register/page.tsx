@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { RollingText } from "@/components/rolling-text";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
+import { MIN_PASSWORD_LENGTH } from "@/lib/validators";
+import { fetchJson, ApiError, type RegisterResponse } from "@/lib/api-types";
 
 const MONO = "font-mono tracking-tight";
 
@@ -30,8 +32,8 @@ export default function RegisterPage() {
     setError(null);
     setSuccess(null);
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
 
@@ -43,7 +45,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
+      await fetchJson<RegisterResponse>("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -52,14 +54,6 @@ export default function RegisterPage() {
           password,
         }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Registration failed.");
-        setIsLoading(false);
-        return;
-      }
 
       setSuccess("Registration successful! Setting up your session...");
 
@@ -75,8 +69,8 @@ export default function RegisterPage() {
       } else {
         router.push("/login?registered=true");
       }
-    } catch {
-      setError("Network error. Please try again.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Network error. Please try again.");
       setIsLoading(false);
     }
   };
@@ -92,7 +86,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
           <Link href="/" className="group flex items-center">
-            <Logo concept="monogram" size="md" />
+            <Logo size="md" />
           </Link>
           <h1 className="mt-7 font-display text-4xl font-bold tracking-tight text-foreground">
             Create an account
@@ -172,7 +166,7 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                placeholder="Minimum 8 characters"
+                placeholder={`Minimum ${MIN_PASSWORD_LENGTH} characters`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}

@@ -1,4 +1,5 @@
 import { NextAuthOptions } from "next-auth";
+import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
@@ -12,6 +13,17 @@ const SESSION_IDLE_TIMEOUT = 15 * 24 * 60 * 60; // 15 days
 // account is locked for 15 minutes. A success resets the counter.
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000;
+
+/**
+ * Resolves the authenticated user id from the current request session.
+ * Returns `null` when there is no valid signed-in session (token without a
+ * confirmed `id` — e.g. an idle-timed-out session — is not accepted).
+ */
+export async function requireUser(): Promise<string | null> {
+  const session = await getServerSession(authOptions);
+  const id = session?.user?.id;
+  return typeof id === "string" && id.length > 0 ? id : null;
+}
 
 export const authOptions: NextAuthOptions = {
   session: {

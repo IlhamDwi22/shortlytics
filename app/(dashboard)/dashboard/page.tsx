@@ -6,20 +6,12 @@ import { LinkForm } from "@/components/link-form";
 import { LinkCard } from "@/components/link-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { fetchJson, type ApiLink, type ListLinksResponse } from "@/lib/api-types";
 
 const MONO = "font-mono tracking-tight";
 
-interface LinkItem {
-  id: string;
-  shortCode: string;
-  shortUrl: string;
-  originalUrl: string;
-  totalClicks: number;
-  createdAt: string;
-}
-
 export default function DashboardPage() {
-  const [links, setLinks] = React.useState<LinkItem[]>([]);
+  const [links, setLinks] = React.useState<ApiLink[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
@@ -29,21 +21,16 @@ export default function DashboardPage() {
   // effect without synchronously calling setState.
   const fetchLinksData = React.useCallback(async () => {
     try {
-      const res = await fetch("/api/links");
-      const data = await res.json();
-      if (!res.ok) {
-        return {
-          ok: false as const,
-          links: [] as LinkItem[],
-          message: (data as { message?: string })?.message || "Failed to load links.",
-        };
-      }
-      return { ok: true as const, links: (data.links || []) as LinkItem[], message: null };
-    } catch {
+      const data = await fetchJson<ListLinksResponse>("/api/links");
+      return { ok: true as const, links: data.links, message: null };
+    } catch (err) {
       return {
         ok: false as const,
-        links: [] as LinkItem[],
-        message: "Failed to connect to the server. Check your connection.",
+        links: [] as ApiLink[],
+        message:
+          err instanceof Error && err.message
+            ? err.message
+            : "Failed to load links.",
       };
     }
   }, []);
