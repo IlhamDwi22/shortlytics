@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
-          message: "Anda harus login terlebih dahulu.",
+          message: "You must be signed in first.",
         },
         { status: 401 }
       );
@@ -41,7 +41,7 @@ export async function GET(
       return NextResponse.json(
         {
           error: "NOT_FOUND",
-          message: "Link tidak ditemukan.",
+          message: "Link not found.",
         },
         { status: 404 }
       );
@@ -82,7 +82,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
-          message: "Anda harus login terlebih dahulu.",
+          message: "You must be signed in first.",
         },
         { status: 401 }
       );
@@ -100,14 +100,14 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: "NOT_FOUND",
-          message: "Link tidak ditemukan.",
+          message: "Link not found.",
         },
         { status: 404 }
       );
     }
 
     return NextResponse.json({
-      message: "Link beserta seluruh data analitik berhasil dihapus.",
+      message: "Link and all of its analytics data were deleted successfully.",
     });
   } catch (error) {
     console.error("Delete Link Error:", error);

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
-          message: "Anda harus login untuk membuat short URL.",
+          message: "You must be signed in to create a short URL.",
         },
         { status: 401 }
       );
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "RATE_LIMITED",
-          message: "Terlalu banyak request pembuatan link. Coba lagi dalam beberapa saat.",
+          message: "Too many link creation requests. Please try again shortly.",
           retryAfter: reset,
         },
         {
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "INVALID_JSON",
-          message: "Body request harus berupa JSON yang valid.",
+          message: "Request body must be valid JSON.",
         },
         { status: 400 }
       );
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "SELF_REFERENTIAL_URL",
-          message: "Tidak dapat menyingkat URL dari layanan shortener atau domain sendiri.",
+          message: "Cannot shorten a URL from a shortener service or your own domain.",
         },
         { status: 400 }
       );
@@ -120,7 +120,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "COLLISION_RETRY_EXHAUSTED",
-          message: "Gagal membuat short code unik, coba lagi.",
+          message: "Failed to generate a unique short code. Please try again.",
         },
         { status: 500 }
       );
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error: "INTERNAL_SERVER_ERROR",
-        message: "Terjadi kesalahan pada server saat membuat link.",
+        message: "An error occurred on the server while creating the link.",
       },
       { status: 500 }
     );
@@ -162,7 +162,7 @@ export async function GET(req: Request) {
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
-          message: "Anda harus login untuk melihat daftar link.",
+          message: "You must be signed in to view your links.",
         },
         { status: 401 }
       );
@@ -201,7 +201,7 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         error: "INTERNAL_SERVER_ERROR",
-        message: "Terjadi kesalahan saat mengambil daftar link.",
+        message: "An error occurred while fetching your links.",
       },
       { status: 500 }
     );

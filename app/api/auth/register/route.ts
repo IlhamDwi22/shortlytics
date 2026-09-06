@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "RATE_LIMITED",
-          message: "Terlalu banyak percobaan registrasi. Coba lagi dalam beberapa saat.",
+          message: "Too many registration attempts. Please try again shortly.",
           retryAfter: reset,
         },
         {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "INVALID_JSON",
-          message: "Body request harus berupa JSON yang valid.",
+          message: "Request body must be valid JSON.",
         },
         { status: 400 }
       );
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "INVALID_EMAIL",
-          message: "Format email tidak valid.",
+          message: "Invalid email format.",
         },
         { status: 400 }
       );
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "INVALID_PASSWORD",
-          message: "Password harus minimal 8 karakter.",
+          message: "Password must be at least 8 characters.",
         },
         { status: 400 }
       );
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "EMAIL_ALREADY_EXISTS",
-          message: "Email sudah terdaftar. Silakan login.",
+          message: "Email is already registered. Please sign in.",
         },
         { status: 409 }
       );
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        message: "Registrasi berhasil.",
+        message: "Registration successful.",
         user,
       },
       { status: 201 }
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error: "INTERNAL_SERVER_ERROR",
-        message: "Terjadi kesalahan pada server saat registrasi.",
+        message: "An error occurred on the server during registration.",
       },
       { status: 500 }
     );

@@ -103,7 +103,7 @@ export default function LinkDetailPage() {
 
         if (!analyticsRes.ok) {
           // Don't silently drop analytics failures — surface them with a banner.
-          setAnalyticsError("Gagal memuat data analitik.");
+          setAnalyticsError("Failed to load analytics data.");
           setAnalytics(null);
           return;
         }
@@ -204,7 +204,7 @@ export default function LinkDetailPage() {
               ) : (
                 <Copy className="mr-1.5 size-4" />
               )}
-              {copied ? "Tersalin" : "Salin"}
+              {copied ? "Copied" : "Copy"}
             </Button>
             <a
               href={link.shortUrl}
@@ -224,7 +224,7 @@ export default function LinkDetailPage() {
         <div className="mt-6 flex items-center gap-8 border-t border-border/30 pt-6">
           <div>
             <span className={cn(MONO, "text-xs uppercase tracking-[0.14em] text-muted-foreground")}>
-              Total klik
+              Total clicks
             </span>
             <div className={cn(MONO, "mt-1 text-4xl font-semibold text-foreground tabular-nums")}>
               {liveClicks.toLocaleString()}
@@ -232,7 +232,7 @@ export default function LinkDetailPage() {
           </div>
           <div>
             <span className={cn(MONO, "text-xs uppercase tracking-[0.14em] text-muted-foreground")}>
-              Dibuat
+              Created
             </span>
             <div className={cn(MONO, "mt-1.5 text-base text-foreground/70")}>
               {new Date(link.createdAt).toLocaleDateString("en-US", {
@@ -259,7 +259,7 @@ export default function LinkDetailPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Activity className="size-5 text-lime-300" />
-                Klik dari Waktu ke Waktu
+                Clicks over time
               </CardTitle>
               <Radio className="size-3.5 animate-pulse text-muted-foreground/40" />
             </div>
@@ -273,7 +273,7 @@ export default function LinkDetailPage() {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <Globe2 className="size-5 text-lime-300" />
-              Perangkat
+              Devices
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -287,7 +287,7 @@ export default function LinkDetailPage() {
         {/* Top Referrers */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Referrer Teratas</CardTitle>
+            <CardTitle className="text-base">Top referrers</CardTitle>
           </CardHeader>
           <CardContent>
             {analytics?.topReferrers && analytics.topReferrers.length > 0 ? (
@@ -349,7 +349,7 @@ export default function LinkDetailPage() {
                 })}
               </ul>
             ) : (
-              <p className="text-base text-muted-foreground">Belum ada data negara.</p>
+              <p className="text-base text-muted-foreground">No country data yet.</p>
             )}
           </CardContent>
         </Card>
@@ -359,7 +359,7 @@ export default function LinkDetailPage() {
       {analytics?.browserBreakdown && analytics.browserBreakdown.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Peramban</CardTitle>
+            <CardTitle className="text-base">Browsers</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -386,7 +386,7 @@ export default function LinkDetailPage() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Klik Terbaru</CardTitle>
+              <CardTitle className="text-base">Recent clicks</CardTitle>
               <div className="flex items-center gap-1.5">
                 <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
                 <span className={cn(MONO, "text-[11px] text-muted-foreground/70")}>live</span>

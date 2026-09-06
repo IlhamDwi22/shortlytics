@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   title: "Shortlytics — URL Shortener with Real-Time Analytics",
   description:
     "Developer-grade URL shortener with live, real-time link analytics — geolocation, device, and referrer breakdown, free and transparent.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+  },
 };
 
 export default function RootLayout({

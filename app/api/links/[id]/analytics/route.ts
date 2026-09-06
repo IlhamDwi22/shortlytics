@@ -20,7 +20,7 @@ export async function GET(
       return NextResponse.json(
         {
           error: "UNAUTHORIZED",
-          message: "Anda harus login terlebih dahulu.",
+          message: "You must be signed in first.",
         },
         { status: 401 }
       );
@@ -44,7 +44,7 @@ export async function GET(
       return NextResponse.json(
         {
           error: "NOT_FOUND",
-          message: "Link tidak ditemukan.",
+          message: "Link not found.",
         },
         { status: 404 }
       );
@@ -54,7 +54,7 @@ export async function GET(
       return NextResponse.json(
         {
           error: "FORBIDDEN",
-          message: "Anda tidak memiliki akses ke data analitik link ini.",
+          message: "You do not have access to this link's analytics data.",
         },
         { status: 403 }
       );
@@ -166,7 +166,7 @@ export async function GET(
     return NextResponse.json(
       {
         error: "INTERNAL_SERVER_ERROR",
-        message: "Terjadi kesalahan saat mengambil data analitik.",
+        message: "An error occurred while fetching analytics data.",
       },
       { status: 500 }
     );

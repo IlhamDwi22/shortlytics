@@ -23,7 +23,7 @@ export function LinkForm({ onCreated }: LinkFormProps) {
     e.preventDefault();
     if (isLoading) return;
     if (!url.trim()) {
-      setError("Masukkan URL terlebih dahulu.");
+      setError("Enter a URL first.");
       return;
     }
 
@@ -40,7 +40,7 @@ export function LinkForm({ onCreated }: LinkFormProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Gagal membuat short link.");
+        setError(data.message || "Failed to create short link.");
         toast.error(data.message || "Failed to create short link.");
         setIsLoading(false);
         return;
@@ -61,7 +61,7 @@ export function LinkForm({ onCreated }: LinkFormProps) {
       setIsLoading(false);
       onCreated?.();
     } catch {
-      setError("Gagal terhubung ke server. Coba lagi.");
+      setError("Failed to connect to the server. Try again.");
       toast.error("Network error. Please try again.");
       setIsLoading(false);
     }

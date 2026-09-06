@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { LayoutDashboard, LogOut, ArrowUpRight } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
+import { Logo, LogoIcon } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -24,24 +25,8 @@ export default function DashboardLayout({
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
-            <Link href="/" className="group flex items-center gap-3">
-              <span
-                className={cn(
-                  MONO,
-                  "flex h-8 items-center gap-1.5 rounded border border-lime-400/40 bg-lime-400/10 px-2.5 text-xs font-semibold text-lime-300"
-                )}
-              >
-                <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
-                s/fn
-              </span>
-              <span
-                className={cn(
-                  MONO,
-                  "text-base font-semibold tracking-tight text-foreground"
-                )}
-              >
-                shortlytics
-              </span>
+            <Link href="/" className="group flex items-center">
+              <Logo concept="monogram" size="md" />
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">
@@ -91,14 +76,7 @@ export default function DashboardLayout({
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <span
-              className={cn(
-                MONO,
-                "flex h-7 items-center rounded border border-lime-400/40 bg-lime-400/10 px-2 text-[11px] font-semibold text-lime-300"
-              )}
-            >
-              s/fn
-            </span>
+            <LogoIcon concept="monogram" size="xs" animated={false} />
             <span className={cn(MONO, "text-sm text-muted-foreground")}>
               © 2026 shortlytics
             </span>

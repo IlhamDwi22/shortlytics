@@ -55,7 +55,7 @@ export function DeviceBreakdownChart({ data }: DeviceBreakdownChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground sm:h-[280px]">
-        Belum ada data perangkat.
+        No device data yet.
       </div>
     );
   }

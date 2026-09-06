@@ -21,7 +21,7 @@ export function validateOriginalUrl(input: unknown): ValidationResult {
     return {
       valid: false,
       error: "EMPTY_URL",
-      message: "URL tidak boleh kosong.",
+      message: "URL must not be empty.",
     };
   }
 
@@ -32,7 +32,7 @@ export function validateOriginalUrl(input: unknown): ValidationResult {
     return {
       valid: false,
       error: "URL_TOO_LONG",
-      message: `URL terlalu panjang, maksimal ${MAX_URL_LENGTH} karakter.`,
+      message: `URL is too long, maximum ${MAX_URL_LENGTH} characters.`,
     };
   }
 
@@ -43,7 +43,7 @@ export function validateOriginalUrl(input: unknown): ValidationResult {
     return {
       valid: false,
       error: "INVALID_URL_FORMAT",
-      message: "Format URL tidak valid. Pastikan menyertakan http:// atau https://",
+      message: "Invalid URL format. Make sure it includes http:// or https://",
     };
   }
 
@@ -52,7 +52,7 @@ export function validateOriginalUrl(input: unknown): ValidationResult {
     return {
       valid: false,
       error: "DISALLOWED_SCHEME",
-      message: "Hanya protokol http:// dan https:// yang diizinkan.",
+      message: "Only the http:// and https:// protocols are allowed.",
     };
   }
 

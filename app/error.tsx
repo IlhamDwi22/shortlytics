@@ -21,17 +21,17 @@ export default function GlobalErrorBoundary({
       />
       <div className="mx-auto max-w-md space-y-6">
         <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
-          Terjadi Kesalahan
+          Something went wrong
         </h1>
         <p className="text-base text-muted-foreground">
-          Maaf, ada yang tidak beres. Silakan coba lagi.
+          Sorry, there was an unexpected issue. Please try again.
         </p>
         <button
           type="button"
           onClick={reset}
           className="inline-flex h-12 items-center rounded-lg bg-lime-400 px-6 text-base font-medium text-zinc-950 transition-colors hover:bg-lime-300"
         >
-          Coba Lagi
+          Try again
         </button>
       </div>
     </div>

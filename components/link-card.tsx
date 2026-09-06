@@ -104,7 +104,7 @@ export function LinkCard({
 
           <div className="flex items-center gap-1.5">
             <Badge variant={totalClicks > 0 ? "default" : "outline"}>
-              {totalClicks} klik
+              {totalClicks} clicks
             </Badge>
           </div>
         </div>
@@ -149,10 +149,10 @@ export function LinkCard({
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Hapus Link</DialogTitle>
+            <DialogTitle>Delete Link</DialogTitle>
             <DialogDescription>
-              Apakah Anda yakin ingin menghapus link ini? Tindakan ini tidak dapat
-              dibatalkan dan seluruh data analytics akan dihapus permanen.
+              Are you sure you want to delete this link? This action cannot be
+              undone and all analytics data will be permanently deleted.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-3 rounded-lg border border-border bg-background/60 p-4">
@@ -164,14 +164,14 @@ export function LinkCard({
               onClick={() => setShowDeleteDialog(false)}
               disabled={isDeleting}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? "Menghapus..." : "Hapus"}
+              {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

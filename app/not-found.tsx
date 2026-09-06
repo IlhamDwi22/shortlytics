@@ -22,11 +22,11 @@ export default function NotFound() {
             404
           </h1>
           <h2 className="font-display text-2xl font-semibold text-foreground">
-            Link Tidak Ditemukan
+            Link not found
           </h2>
           <p className="text-base text-muted-foreground">
-            Tautan pendek yang Anda akses tidak ditemukan, telah dinonaktifkan,
-            atau sudah dihapus oleh pemiliknya.
+            The short link you tried to access does not exist, has been
+            deactivated, or was removed by its owner.
           </p>
         </div>
 
@@ -39,7 +39,7 @@ export default function NotFound() {
             )}
           >
             <ArrowLeft className="size-4.5" />
-            Kembali ke Beranda
+            Back to home
           </Link>
         </div>
 

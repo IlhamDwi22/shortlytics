@@ -9,6 +9,7 @@ import { Loader2, AlertCircle, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RollingText } from "@/components/rolling-text";
+import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -42,7 +43,7 @@ function LoginForm() {
       });
 
       if (!res?.ok || res.error) {
-        setError("Email atau password yang Anda masukkan salah.");
+        setError("Incorrect email or password.");
         setIsLoading(false);
         return;
       }
@@ -50,7 +51,7 @@ function LoginForm() {
       router.push(callbackUrl);
       router.refresh();
     } catch {
-      setError("Terjadi kesalahan. Silakan coba beberapa saat lagi.");
+      setError("Something went wrong. Please try again in a moment.");
       setIsLoading(false);
     }
   };
@@ -60,7 +61,7 @@ function LoginForm() {
       {registered && (
         <div className="mb-6 flex items-center gap-3 rounded-lg border border-lime-500/20 bg-lime-500/10 p-4 text-base text-lime-300">
           <span className="size-2 rounded-full bg-lime-400" />
-          <span>Akun berhasil dibuat. Silakan masuk.</span>
+          <span>Account created. Please sign in.</span>
         </div>
       )}
       {error && (
@@ -121,11 +122,11 @@ function LoginForm() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 size-5 animate-spin" />
-              Memproses...
+              Signing in...
             </>
           ) : (
             <>
-              <RollingText>Masuk ke Akun</RollingText>
+              <RollingText>Sign in</RollingText>
               <ArrowUpRight className="ml-1.5 size-5" />
             </>
           )}
@@ -133,12 +134,12 @@ function LoginForm() {
       </form>
 
       <div className="mt-8 border-t border-border pt-6 text-center text-base text-muted-foreground">
-        Belum punya akun?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="/register"
           className="font-semibold text-primary-600 transition-colors hover:text-primary-700 dark:text-lime-300 dark:hover:text-lime-200"
         >
-          Daftar sekarang
+          Sign up
         </Link>
       </div>
     </div>
@@ -156,30 +157,14 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
-          <Link href="/" className="group flex items-center gap-3">
-            <span
-              className={cn(
-                MONO,
-                "flex h-8 items-center gap-1.5 rounded border border-lime-400/40 bg-lime-400/10 px-2.5 text-xs font-semibold text-primary-600 dark:text-lime-300"
-              )}
-            >
-              <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
-              s/fn
-            </span>
-            <span
-              className={cn(
-                MONO,
-                "text-base font-semibold tracking-tight text-foreground"
-              )}
-            >
-              shortlytics
-            </span>
+          <Link href="/" className="group flex items-center">
+            <Logo concept="monogram" size="md" />
           </Link>
           <h1 className="mt-7 font-display text-4xl font-bold tracking-tight text-foreground">
             Welcome back
           </h1>
           <p className="mt-2.5 text-base text-muted-foreground">
-            Masuk ke akun Anda untuk mengelola short URL dan analytics
+            Sign in to your account to manage your short URLs and analytics
           </p>
         </div>
 

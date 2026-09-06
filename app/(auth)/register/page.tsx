@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, CheckCircle2, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RollingText } from "@/components/rolling-text";
+import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -30,12 +31,12 @@ export default function RegisterPage() {
     setSuccess(null);
 
     if (password.length < 8) {
-      setError("Password harus minimal 8 karakter.");
+      setError("Password must be at least 8 characters.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Konfirmasi password tidak cocok.");
+      setError("Passwords do not match.");
       return;
     }
 
@@ -55,12 +56,12 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Gagal melakukan registrasi.");
+        setError(data.message || "Registration failed.");
         setIsLoading(false);
         return;
       }
 
-      setSuccess("Registrasi berhasil! Menyiapkan sesi Anda...");
+      setSuccess("Registration successful! Setting up your session...");
 
       const loginRes = await signIn("credentials", {
         redirect: false,
@@ -75,7 +76,7 @@ export default function RegisterPage() {
         router.push("/login?registered=true");
       }
     } catch {
-      setError("Terjadi kesalahan jaringan. Silakan coba lagi.");
+      setError("Network error. Please try again.");
       setIsLoading(false);
     }
   };
@@ -90,30 +91,14 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
-          <Link href="/" className="group flex items-center gap-3">
-            <span
-              className={cn(
-                MONO,
-                "flex h-8 items-center gap-1.5 rounded border border-lime-400/40 bg-lime-400/10 px-2.5 text-xs font-semibold text-primary-600 dark:text-lime-300"
-              )}
-            >
-              <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
-              s/fn
-            </span>
-            <span
-              className={cn(
-                MONO,
-                "text-base font-semibold tracking-tight text-foreground"
-              )}
-            >
-              shortlytics
-            </span>
+          <Link href="/" className="group flex items-center">
+            <Logo concept="monogram" size="md" />
           </Link>
           <h1 className="mt-7 font-display text-4xl font-bold tracking-tight text-foreground">
             Create an account
           </h1>
           <p className="mt-2.5 text-base text-muted-foreground">
-            Daftar akun gratis dan mulai pantau performa short link Anda
+            Create a free account and start tracking your short links&apos; performance
           </p>
         </div>
 
@@ -138,7 +123,7 @@ export default function RegisterPage() {
                 htmlFor="name"
                 className={cn(MONO, "text-sm font-medium uppercase tracking-wider text-muted-foreground")}
               >
-                Nama Lengkap (Opsional)
+                Full Name (Optional)
               </label>
               <Input
                 id="name"
@@ -187,7 +172,7 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                placeholder="Minimal 8 karakter"
+                placeholder="Minimum 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
@@ -200,7 +185,7 @@ export default function RegisterPage() {
                 htmlFor="confirmPassword"
                 className={cn(MONO, "text-sm font-medium uppercase tracking-wider text-muted-foreground")}
               >
-                Konfirmasi Password <span className="text-red-400">*</span>
+                Confirm Password <span className="text-red-400">*</span>
               </label>
               <Input
                 id="confirmPassword"
@@ -208,7 +193,7 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                placeholder="Ulangi password"
+                placeholder="Repeat password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isLoading}
@@ -224,11 +209,11 @@ export default function RegisterPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 size-5 animate-spin" />
-                  Mendaftarkan...
+                  Creating account...
                 </>
               ) : (
                 <>
-                  <RollingText>Daftar Akun Baru</RollingText>
+                  <RollingText>Create account</RollingText>
                   <ArrowUpRight className="ml-1.5 size-5" />
                 </>
               )}
@@ -236,12 +221,12 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-8 border-t border-border pt-6 text-center text-base text-muted-foreground">
-            Sudah punya akun?{" "}
+            Already have an account?{" "}
             <Link
               href="/login"
               className="font-semibold text-primary-600 transition-colors hover:text-primary-700 dark:text-lime-300 dark:hover:text-lime-200"
             >
-              Masuk di sini
+              Sign in
             </Link>
           </div>
         </div>

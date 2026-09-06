@@ -35,7 +35,7 @@ export default function DashboardPage() {
         return {
           ok: false as const,
           links: [] as LinkItem[],
-          message: (data as { message?: string })?.message || "Gagal memuat link.",
+          message: (data as { message?: string })?.message || "Failed to load links.",
         };
       }
       return { ok: true as const, links: (data.links || []) as LinkItem[], message: null };
@@ -43,7 +43,7 @@ export default function DashboardPage() {
       return {
         ok: false as const,
         links: [] as LinkItem[],
-        message: "Gagal terhubung ke server. Periksa koneksi Anda.",
+        message: "Failed to connect to the server. Check your connection.",
       };
     }
   }, []);
@@ -89,7 +89,7 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="mt-2 text-base text-muted-foreground">
-          Kelola short link Anda dan pantau performanya.
+          Manage your short links and track their performance.
         </p>
       </div>
 
@@ -102,7 +102,7 @@ export default function DashboardPage() {
           <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/70" />
           <input
             type="text"
-            placeholder="Cari link..."
+            placeholder="Search links..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={cn(
@@ -115,7 +115,7 @@ export default function DashboardPage() {
           {isRefreshing ? (
             <>
               <Loader2 className="size-3.5 animate-spin text-lime-400" />
-              menyegarkan...
+              refreshing...
             </>
           ) : (
             <>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
             onClick={() => { setIsLoading(true); void refetchLinks(); }}
             className="inline-flex h-9 items-center rounded-lg border border-border bg-card px-4 text-xs font-medium text-foreground transition-colors hover:border-lime-400/40"
           >
-            Coba lagi
+            Try again
           </button>
         </div>
       )}
@@ -171,12 +171,12 @@ export default function DashboardPage() {
             <Link2 className="size-7 text-muted-foreground/70" />
           </div>
           <h3 className="mt-5 font-display text-lg font-semibold text-foreground/80">
-            {searchQuery ? "Link tidak ditemukan" : "Belum ada link"}
+            {searchQuery ? "No links found" : "No links yet"}
           </h3>
           <p className="mt-1.5 text-sm text-muted-foreground">
             {searchQuery
-              ? "Coba kata kunci pencarian lain."
-              : "Buat short link pertama Anda di atas untuk memulai."}
+              ? "Try a different search keyword."
+              : "Create your first short link above to get started."}
           </p>
           {!searchQuery && (
             <div className="mt-5 flex items-center gap-1.5 text-xs text-muted-foreground/70">

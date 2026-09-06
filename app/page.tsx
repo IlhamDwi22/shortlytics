@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowUpRight,
   Copy,
@@ -21,6 +21,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RollingText } from "@/components/rolling-text";
 import { CountUp, LiveDot, Reveal } from "@/components/live";
+import Aurora from "@/components/aurora";
+import { Logo, LogoIcon } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const MONO = "font-mono tracking-tight";
@@ -56,6 +58,7 @@ function useTickingCounter(initial: number, stepMin = 0, stepMax = 3) {
 
 export default function LandingPage() {
   const { data: session } = useSession();
+  const reduce = useReducedMotion();
   const totalClicks = useTickingCounter(148);
   const clicksToday = useTickingCounter(63, 0, 2);
 
@@ -65,6 +68,16 @@ export default function LandingPage() {
   >("idle");
   const [shortUrl, setShortUrl] = React.useState("");
   const [copied, setCopied] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,27 +108,36 @@ export default function LandingPage() {
     /* Landing is deliberately pinned to the dark "data instrument" shell,
        independent of the app-level theme (dashboard/auth honor system pref). */
     <div className="dark flex min-h-screen flex-col bg-background text-foreground selection:bg-lime-400/30 selection:text-lime-200">
-      {/* 1 · Nav */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="group flex items-center gap-3">
-            <span
-              className={cn(
-                MONO,
-                "flex h-8 items-center gap-1.5 rounded border border-lime-400/40 bg-lime-400/10 px-2.5 text-xs font-semibold text-lime-300",
-              )}
-            >
-              <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
-              s/fn
-            </span>
-            <span
-              className={cn(
-                MONO,
-                "text-base font-semibold tracking-tight text-foreground",
-              )}
-            >
-              shortlytics
-            </span>
+      {/* 1 · Nav — Floating Pill Navbar */}
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 flex justify-center pointer-events-none transition-all duration-300 ease-out",
+          isScrolled
+            ? "pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8"
+            : "pt-0 px-4 sm:px-8 lg:px-12",
+        )}
+      >
+        <div
+          className={cn(
+            "pointer-events-auto flex w-full items-center justify-between transition-all duration-300 ease-out",
+            isScrolled
+              ? "max-w-7xl h-14 sm:h-16 px-5 sm:px-7 rounded-2xl bg-zinc-950/45 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/80"
+              : "max-w-[96rem] h-16 sm:h-20 px-0 bg-transparent border-transparent shadow-none rounded-none",
+          )}
+        >
+          <Link
+            href="/"
+            className={cn(
+              "group flex items-center transition-colors duration-300",
+              isScrolled ? "text-foreground" : "text-zinc-950"
+            )}
+          >
+            <Logo
+              concept="monogram"
+              size="md"
+              animated={true}
+              textClassName={isScrolled ? "text-foreground" : "text-zinc-950"}
+            />
           </Link>
 
           <nav className="hidden items-center gap-8 md:flex">
@@ -129,7 +151,10 @@ export default function LandingPage() {
                 href={href}
                 className={cn(
                   MONO,
-                  "text-xs uppercase tracking-[0.16em] text-zinc-500 transition-colors hover:text-lime-300",
+                  "text-xs uppercase tracking-[0.16em] font-semibold transition-colors duration-300",
+                  isScrolled
+                    ? "text-zinc-400 hover:text-lime-300"
+                    : "text-zinc-950/80 hover:text-zinc-950",
                 )}
               >
                 {label}
@@ -142,11 +167,14 @@ export default function LandingPage() {
               <Link
                 href="/dashboard"
                 className={cn(
-                  buttonVariants({ size: "default" }),
-                  "rounded-md bg-lime-400 font-medium text-zinc-950 hover:bg-lime-300",
+                  buttonVariants({ size: isScrolled ? "sm" : "default" }),
+                  "rounded-xl font-semibold transition-all duration-300 shadow-sm",
+                  isScrolled
+                    ? "bg-lime-400 text-zinc-950 hover:bg-lime-300"
+                    : "bg-zinc-950 text-lime-300 hover:bg-zinc-900 border border-zinc-950/30",
                 )}
               >
-                Dashboard
+                <RollingText>Dashboard</RollingText>
                 <ArrowUpRight className="ml-1 size-4" />
               </Link>
             ) : (
@@ -154,8 +182,14 @@ export default function LandingPage() {
                 <Link
                   href="/login"
                   className={cn(
-                    buttonVariants({ size: "default", variant: "ghost" }),
-                    "hidden rounded-md text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-flex",
+                    buttonVariants({
+                      size: isScrolled ? "sm" : "default",
+                      variant: "ghost",
+                    }),
+                    "hidden rounded-xl font-semibold transition-colors duration-300 sm:inline-flex",
+                    isScrolled
+                      ? "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      : "text-zinc-950/80 hover:bg-zinc-950/10 hover:text-zinc-950",
                   )}
                 >
                   Log in
@@ -163,8 +197,11 @@ export default function LandingPage() {
                 <Link
                   href="/register"
                   className={cn(
-                    buttonVariants({ size: "default" }),
-                    "rounded-md bg-lime-400 font-medium text-zinc-950 hover:bg-lime-300",
+                    buttonVariants({ size: isScrolled ? "sm" : "default" }),
+                    "rounded-xl font-semibold transition-all duration-300 shadow-sm",
+                    isScrolled
+                      ? "bg-lime-400 text-zinc-950 hover:bg-lime-300"
+                      : "bg-zinc-950 text-lime-300 hover:bg-zinc-900 border border-zinc-950/30",
                   )}
                 >
                   <RollingText>Get started</RollingText>
@@ -177,328 +214,399 @@ export default function LandingPage() {
       </header>
 
       {/* 2 · Hero — asymmetric: working shorten console left, live instrument right */}
-      <section className="relative mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8" style={{ minHeight: "calc(100dvh - 64px)" }}>
-        {/* ambient grid */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(ellipse_at_top,rgba(163,230,53,0.08),transparent_60%)]"
-        />
-
-        {/* Left — shorten console */}
-        <Reveal className="flex flex-col justify-center lg:col-span-6">
+      <section className="relative overflow-hidden isolate">
+        {/* Aurora Background Effect */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+          <Aurora
+            colorStops={["#7cff67", "#B497CF", "#5227FF"]}
+            blend={0.5}
+            amplitude={1.0}
+            speed={0.6}
+          />
+          {/* Subtle top ambient lime glow for brand harmony */}
           <div
-            className={cn(
-              MONO,
-              "inline-flex w-fit items-center gap-2 rounded border border-border bg-muted/50 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-lime-300",
-            )}
-          >
-            <Radio className="size-3.5 animate-pulse" />
-            Live SSE stream · 0.0s refresh
-          </div>
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(163,230,53,0.14),transparent_65%)]"
+          />
+          {/* Smooth bottom fade into next section */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-background via-background/40 to-transparent"
+          />
+        </div>
 
-          <h1
-            className="mt-7 grid w-full max-w-2xl font-display text-5xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-6xl lg:text-[3.75rem]"
-          >
-            {/* invisible placeholder — holds final height */}
-            <span className="invisible col-start-1 row-start-1 select-none" aria-hidden>
-              Short links.<br />Signals in real time.
-            </span>
-            {/* visible animated text */}
-            <motion.span
-              className="col-start-1 row-start-1"
-              initial="hidden"
-              animate="visible"
-              variants={{
-                hidden: {},
-                visible: { transition: { staggerChildren: 0.07 } },
-              }}
+        <div
+          className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 px-4 pb-20 pt-24 sm:pt-28 lg:pt-32 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8"
+          style={{ minHeight: "100dvh" }}
+        >
+          {/* Left — shorten console */}
+          <Reveal className="flex flex-col justify-center lg:col-span-6">
+            <div
+              className={cn(
+                MONO,
+                "inline-flex w-fit items-center gap-2 rounded border border-border bg-muted/50 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-lime-300",
+              )}
             >
-              <motion.span
-                className="inline-block"
-                variants={{
-                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
-                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-                }}
-              >
-                Short
-              </motion.span>
-              <span className="inline-block">&nbsp;</span>
-              <motion.span
-                className="inline-block"
-                variants={{
-                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
-                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-                }}
-              >
-                links.
-              </motion.span>
-              <br />
-              <motion.span
-                className="mt-1 inline-block"
-                variants={{
-                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
-                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-                }}
-              >
-                Signals
-              </motion.span>
-              <span className="inline-block">&nbsp;</span>
-              <motion.span
-                className="inline-block"
-                variants={{
-                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
-                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-                }}
-              >
-                in
-              </motion.span>
-              <span className="inline-block">&nbsp;</span>
-              <motion.span
-                className="inline-block text-lime-300 text-glow-lime"
-                variants={{
-                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
-                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-                }}
-              >
-                real
-              </motion.span>
-              <span className="inline-block">&nbsp;</span>
-              <motion.span
-                className="inline-block text-lime-300 text-glow-lime"
-                variants={{
-                  hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
-                  visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-                }}
-              >
-                time.
-              </motion.span>
-            </motion.span>
-          </h1>
+              <Radio className="size-3.5 animate-pulse" />
+              Live SSE stream · 0.0s refresh
+            </div>
 
-          <p className="mt-4 max-w-lg text-lg leading-relaxed text-muted-foreground">
-            A developer-grade URL shortener with live analytics. Watch clicks,
-            devices, and referrers arrive the second they happen — free,
-            transparent, no paywall.
-          </p>
-
-          {/* Working shorten console */}
-          <form
-            onSubmit={submit}
-            className="mt-10 rounded-xl border border-border bg-card p-2 focus-within:border-lime-400/50"
-          >
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <div className="flex flex-1 items-center gap-2.5 px-4">
-                <span className={cn(MONO, "flex items-center gap-1 text-sm text-muted-foreground")}>
-                   <span className="text-lime-300">$</span>
-                 </span>
-                <Input
-                  value={url}
-                  onChange={(e) => {
-                    setUrl(e.target.value);
-                    if (state === "error") setState("idle");
+            <h1 className="mt-7 grid w-full max-w-2xl font-display text-5xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-6xl lg:text-[3.75rem]">
+              {/* invisible placeholder — holds final height */}
+              <span
+                className="invisible col-start-1 row-start-1 select-none"
+                aria-hidden
+              >
+                Short links.
+                <br />
+                Signals in real time.
+              </span>
+              {/* visible animated text */}
+              <motion.span
+                className="col-start-1 row-start-1"
+                initial={reduce ? false : "hidden"}
+                animate="visible"
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.07 } },
+                }}
+              >
+                <motion.span
+                  className="inline-block"
+                  variants={{
+                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    visible: {
+                      opacity: 1,
+                      x: 0,
+                      filter: "blur(0px)",
+                      transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                    },
                   }}
-                  placeholder="paste://your-long-url-here"
-                  aria-label="Paste your long URL"
-                  className="h-12 border-0 bg-transparent p-0 font-mono text-base text-foreground shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-0"
-                />
-              </div>
-              <Button
-                type="submit"
-                size="lg"
-                disabled={state === "loading"}
-                className="h-12 rounded-lg bg-lime-400 px-6 font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98]"
-              >
-                {state === "loading" ? "Hashing…" : <RollingText>Shorten</RollingText>}
-                <ArrowUpRight className="ml-1.5 size-4.5" />
-              </Button>
-            </div>
+                >
+                  Short
+                </motion.span>
+                <span className="inline-block">&nbsp;</span>
+                <motion.span
+                  className="inline-block"
+                  variants={{
+                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    visible: {
+                      opacity: 1,
+                      x: 0,
+                      filter: "blur(0px)",
+                      transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                    },
+                  }}
+                >
+                  links.
+                </motion.span>
+                <br />
+                <motion.span
+                  className="mt-1 inline-block"
+                  variants={{
+                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    visible: {
+                      opacity: 1,
+                      x: 0,
+                      filter: "blur(0px)",
+                      transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                    },
+                  }}
+                >
+                  Signals
+                </motion.span>
+                <span className="inline-block">&nbsp;</span>
+                <motion.span
+                  className="inline-block"
+                  variants={{
+                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    visible: {
+                      opacity: 1,
+                      x: 0,
+                      filter: "blur(0px)",
+                      transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                    },
+                  }}
+                >
+                  in
+                </motion.span>
+                <span className="inline-block">&nbsp;</span>
+                <motion.span
+                  className="inline-block text-lime-300 text-glow-lime"
+                  variants={{
+                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    visible: {
+                      opacity: 1,
+                      x: 0,
+                      filter: "blur(0px)",
+                      transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                    },
+                  }}
+                >
+                  real
+                </motion.span>
+                <span className="inline-block">&nbsp;</span>
+                <motion.span
+                  className="inline-block text-lime-300 text-glow-lime"
+                  variants={{
+                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    visible: {
+                      opacity: 1,
+                      x: 0,
+                      filter: "blur(0px)",
+                      transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                    },
+                  }}
+                >
+                  time.
+                </motion.span>
+              </motion.span>
+            </h1>
 
-            <div className="mt-1.5 min-h-[48px] border-t border-border/30 px-4 pt-2.5">
-              {state === "idle" && (
-                <p className={cn(MONO, "text-xs text-muted-foreground/70")}>
-                  {"// 7-char base62 · CSPRNG · anti-loop guarded"}
-                </p>
-              )}
-              {state === "error" && (
-                <p className={cn(MONO, "text-xs text-red-400")}>
-                  Invalid URL — must start with http:// or https://
-                </p>
-              )}
-              {state === "done" && (
-                <div className="flex items-center justify-between gap-2">
-                  <span className={cn(MONO, "truncate text-sm text-lime-300")}>
-                    {shortUrl}
-                  </span>
-                  <Button
-                    type="button"
-                    onClick={copy}
-                    size="sm"
-                    variant="ghost"
-                    className="rounded text-xs uppercase tracking-wide text-muted-foreground hover:bg-muted hover:text-lime-300"
-                  >
-                    {copied ? (
-                      <Check className="mr-1 size-4 text-lime-400" />
-                    ) : (
-                      <Copy className="mr-1 size-4" />
+            <p className="mt-4 max-w-lg text-lg leading-relaxed text-muted-foreground">
+              A developer-grade URL shortener with live analytics. Watch clicks,
+              devices, and referrers arrive the second they happen — free,
+              transparent, no paywall.
+            </p>
+
+            {/* Working shorten console */}
+            <form
+              onSubmit={submit}
+              className="mt-10 rounded-xl border border-border bg-card p-2 focus-within:border-lime-400/50"
+            >
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex flex-1 items-center gap-2.5 px-4">
+                  <span
+                    className={cn(
+                      MONO,
+                      "flex items-center gap-1 text-sm text-muted-foreground",
                     )}
-                    {copied ? "Copied" : "Copy"}
-                  </Button>
+                  >
+                    <span className="text-lime-300">$</span>
+                  </span>
+                  <Input
+                    value={url}
+                    onChange={(e) => {
+                      setUrl(e.target.value);
+                      if (state === "error") setState("idle");
+                    }}
+                    placeholder="paste://your-long-url-here"
+                    aria-label="Paste your long URL"
+                    className="h-12 border-0 bg-transparent p-0 font-mono text-base text-foreground shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-0"
+                  />
                 </div>
-              )}
-              {state === "loading" && (
-                <div className="flex items-center gap-2.5">
-                  <span className="size-4 animate-spin rounded-full border-2 border-muted-foreground/40 border-t-lime-400" />
-                   <span className={cn(MONO, "text-sm text-muted-foreground")}>
-                    generating unique code…
-                   </span>
-                </div>
-              )}
-            </div>
-          </form>
-
-          {/* trust rail */}
-          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border pt-6">
-            {[
-              ["<300ms", "redirect"],
-              ["open", "source"],
-              ["no", "paywall"],
-            ].map(([n, l]) => (
-              <span key={l} className={cn(MONO, "text-sm text-muted-foreground")}>
-                <span className="font-semibold text-foreground">{n}</span> {l}
-              </span>
-            ))}
-          </div>
-        </Reveal>
-
-        {/* Right — live instrument panel */}
-        <Reveal delay={0.08} y={16} id="analytics" className="lg:col-span-6">
-          <figure className="relative rounded-xl border border-border bg-card">
-            {/* panel header */}
-            <figcaption className="flex items-center justify-between border-b border-border px-5 py-3">
-              <div className="flex items-center gap-2">
-                <span className="size-2.5 rounded-full bg-muted-foreground/40" />
-                <span className="size-2.5 rounded-full bg-muted-foreground/40" />
-                <span className="size-2.5 rounded-full bg-muted-foreground/40" />
-                <span className={cn(MONO, "ml-2 text-xs text-muted-foreground")}>
-                  shortlytics.app/analytics
-                </span>
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={state === "loading"}
+                  className="h-12 rounded-lg bg-lime-400 px-6 font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98]"
+                >
+                  {state === "loading" ? (
+                    "Hashing…"
+                  ) : (
+                    <RollingText>Shorten</RollingText>
+                  )}
+                  <ArrowUpRight className="ml-1.5 size-4.5" />
+                </Button>
               </div>
-              <span
-                className={cn(
-                  MONO,
-                  "inline-flex items-center gap-1.5 rounded border border-lime-400/30 bg-lime-400/10 px-2.5 py-1 text-[11px] uppercase tracking-wide text-lime-300",
+
+              <div className="mt-1.5 min-h-[48px] border-t border-border/30 px-4 pt-2.5">
+                {state === "idle" && (
+                  <p className={cn(MONO, "text-xs text-muted-foreground/70")}>
+                    {"// 7-char base62 · CSPRNG · anti-loop guarded"}
+                  </p>
                 )}
-              >
-                <LiveDot className="mr-1.5" />
-                live
-              </span>
-            </figcaption>
-
-            {/* live counters */}
-            <div className="grid grid-cols-2 divide-x divide-y divide-border/30">
-              <div className="p-5">
-                <span
-                  className={cn(
-                    MONO,
-                    "text-xs uppercase tracking-[0.14em] text-muted-foreground",
-                  )}
-                >
-                  total clicks
-                </span>
-                <div
-                  className={cn(
-                    MONO,
-                    "mt-1.5 text-4xl font-semibold text-foreground tabular-nums sm:text-5xl",
-                  )}
-                >
-                  <CountUp to={totalClicks} />
-                </div>
-              </div>
-              <div className="p-5">
-                <span
-                  className={cn(
-                    MONO,
-                    "text-xs uppercase tracking-[0.14em] text-muted-foreground",
-                  )}
-                >
-                  today
-                </span>
-                <div
-                  className={cn(
-                    MONO,
-                    "mt-1.5 text-4xl font-semibold text-lime-300 tabular-nums sm:text-5xl",
-                  )}
-                >
-                  <CountUp to={clicksToday} prefix="+" />
-                </div>
-              </div>
-            </div>
-
-            {/* referrer feed */}
-            <div className="border-t border-border px-5 py-4">
-              <span
-                className={cn(
-                  MONO,
-                  "text-xs uppercase tracking-[0.14em] text-zinc-500",
+                {state === "error" && (
+                  <p className={cn(MONO, "text-xs text-red-400")}>
+                    Invalid URL — must start with http:// or https://
+                  </p>
                 )}
-              >
-                top referrers
-              </span>
-              <ul className="mt-3 space-y-2.5">
-                {REFERRERS.map((r) => (
-                  <li key={r.label} className="flex items-center gap-3">
+                {state === "done" && (
+                  <div className="flex items-center justify-between gap-2">
                     <span
-                      className={cn(
-                        MONO,
-                        "w-24 shrink-0 truncate text-sm text-foreground/70 sm:w-32",
-                      )}
+                      className={cn(MONO, "truncate text-sm text-lime-300")}
                     >
-                      {r.label}
+                      {shortUrl}
                     </span>
-                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted/50">
-                      <motion.div
-                        className="h-full rounded-full bg-muted-foreground/50"
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${r.pct}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                      />
-                    </div>
-                    <span
-                      className={cn(
-                        MONO,
-                        "w-10 text-right text-sm tabular-nums text-muted-foreground",
-                      )}
+                    <Button
+                      type="button"
+                      onClick={copy}
+                      size="sm"
+                      variant="ghost"
+                      className="rounded text-xs uppercase tracking-wide text-muted-foreground hover:bg-muted hover:text-lime-300"
                     >
-                      {r.pct}%
-                    </span>
-                    {r.live && <LiveDot className="h-2.5 w-2.5" />}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* device bars */}
-            <div className="grid grid-cols-2 gap-px border-t border-border bg-muted/30 sm:grid-cols-3">
-              {DEVICES.map((d) => (
-                <div key={d.label} className="bg-card px-5 py-4">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <d.icon className="size-4 text-lime-300" />
-                    {d.label}
+                      {copied ? (
+                        <Check className="mr-1 size-4 text-lime-400" />
+                      ) : (
+                        <Copy className="mr-1 size-4" />
+                      )}
+                      {copied ? "Copied" : "Copy"}
+                    </Button>
                   </div>
+                )}
+                {state === "loading" && (
+                  <div className="flex items-center gap-2.5">
+                    <span className="size-4 animate-spin rounded-full border-2 border-muted-foreground/40 border-t-lime-400" />
+                    <span className={cn(MONO, "text-sm text-muted-foreground")}>
+                      generating unique code…
+                    </span>
+                  </div>
+                )}
+              </div>
+            </form>
+
+            {/* trust rail */}
+            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border pt-6">
+              {[
+                ["<300ms", "redirect"],
+                ["open", "source"],
+                ["no", "paywall"],
+              ].map(([n, l]) => (
+                <span
+                  key={l}
+                  className={cn(MONO, "text-sm text-muted-foreground")}
+                >
+                  <span className="font-semibold text-foreground">{n}</span> {l}
+                </span>
+              ))}
+            </div>
+          </Reveal>
+
+          {/* Right — live instrument panel */}
+          <Reveal delay={0.08} y={16} id="analytics" className="lg:col-span-6">
+            <figure className="relative rounded-xl border border-border bg-card">
+              {/* panel header */}
+              <figcaption className="flex items-center justify-between border-b border-border px-5 py-3">
+                <div className="flex items-center gap-2">
+                  <span className="size-2.5 rounded-full bg-muted-foreground/40" />
+                  <span className="size-2.5 rounded-full bg-muted-foreground/40" />
+                  <span className="size-2.5 rounded-full bg-muted-foreground/40" />
+                  <span
+                    className={cn(MONO, "ml-2 text-xs text-muted-foreground")}
+                  >
+                    shortlytics.app/analytics
+                  </span>
+                </div>
+                <span
+                  className={cn(
+                    MONO,
+                    "inline-flex items-center gap-1.5 rounded border border-lime-400/30 bg-lime-400/10 px-2.5 py-1 text-[11px] uppercase tracking-wide text-lime-300",
+                  )}
+                >
+                  <LiveDot className="mr-1.5" />
+                  live
+                </span>
+              </figcaption>
+
+              {/* live counters */}
+              <div className="grid grid-cols-2 divide-x divide-y divide-border/30">
+                <div className="p-5">
+                  <span
+                    className={cn(
+                      MONO,
+                      "text-xs uppercase tracking-[0.14em] text-muted-foreground",
+                    )}
+                  >
+                    total clicks
+                  </span>
                   <div
                     className={cn(
                       MONO,
-                      "mt-1.5 text-xl font-semibold text-foreground tabular-nums",
+                      "mt-1.5 text-4xl font-semibold text-foreground tabular-nums sm:text-5xl",
                     )}
                   >
-                    {d.pct}%
+                    <CountUp to={totalClicks} />
                   </div>
                 </div>
-              ))}
-            </div>
-          </figure>
-        </Reveal>
+                <div className="p-5">
+                  <span
+                    className={cn(
+                      MONO,
+                      "text-xs uppercase tracking-[0.14em] text-muted-foreground",
+                    )}
+                  >
+                    today
+                  </span>
+                  <div
+                    className={cn(
+                      MONO,
+                      "mt-1.5 text-4xl font-semibold text-lime-300 tabular-nums sm:text-5xl",
+                    )}
+                  >
+                    <CountUp to={clicksToday} prefix="+" />
+                  </div>
+                </div>
+              </div>
+
+              {/* referrer feed */}
+              <div className="border-t border-border px-5 py-4">
+                <span
+                  className={cn(
+                    MONO,
+                    "text-xs uppercase tracking-[0.14em] text-zinc-500",
+                  )}
+                >
+                  top referrers
+                </span>
+                <ul className="mt-3 space-y-2.5">
+                  {REFERRERS.map((r) => (
+                    <li key={r.label} className="flex items-center gap-3">
+                      <span
+                        className={cn(
+                          MONO,
+                          "w-24 shrink-0 truncate text-sm text-foreground/70 sm:w-32",
+                        )}
+                      >
+                        {r.label}
+                      </span>
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted/50">
+                        <motion.div
+                          className="h-full rounded-full bg-muted-foreground/50"
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${r.pct}%` }}
+                          viewport={{ once: true }}
+                          transition={{
+                            duration: 0.35,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                        />
+                      </div>
+                      <span
+                        className={cn(
+                          MONO,
+                          "w-10 text-right text-sm tabular-nums text-muted-foreground",
+                        )}
+                      >
+                        {r.pct}%
+                      </span>
+                      {r.live && <LiveDot className="h-2.5 w-2.5" />}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* device bars */}
+              <div className="grid grid-cols-2 gap-px border-t border-border bg-muted/30 sm:grid-cols-3">
+                {DEVICES.map((d) => (
+                  <div key={d.label} className="bg-card px-5 py-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <d.icon className="size-4 text-lime-300" />
+                      {d.label}
+                    </div>
+                    <div
+                      className={cn(
+                        MONO,
+                        "mt-1.5 text-xl font-semibold text-foreground tabular-nums",
+                      )}
+                    >
+                      {d.pct}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </figure>
+          </Reveal>
+        </div>
       </section>
 
       {/* 3 · Data rail */}
@@ -566,7 +674,8 @@ export default function LandingPage() {
               <div>
                 <p className="mt-4 max-w-sm text-base leading-relaxed text-muted-foreground">
                   Every click lands in your dashboard instantly via Server-Sent
-                  Events. No refresh, no polling, no Websocket plumbing to babysit.
+                  Events. No refresh, no polling, no Websocket plumbing to
+                  babysit.
                 </p>
                 <div
                   className={cn(
@@ -593,8 +702,8 @@ export default function LandingPage() {
                   Where it&apos;s read
                 </h3>
                 <p className="mt-2 text-base text-muted-foreground">
-                  Country, city, and device breakdown per link — masked IPs, clean
-                  privacy.
+                  Country, city, and device breakdown per link — masked IPs,
+                  clean privacy.
                 </p>
               </div>
             </div>
@@ -637,7 +746,9 @@ export default function LandingPage() {
                     "space-y-2 rounded border border-border bg-background/60 p-4 text-sm",
                   )}
                 >
-                  <p className="text-muted-foreground">{"// security smoke test"}</p>
+                  <p className="text-muted-foreground">
+                    {"// security smoke test"}
+                  </p>
                   <p className="text-foreground/70">
                     <span className="text-lime-300">✓</span> javascript: blocked
                   </p>
@@ -694,7 +805,10 @@ export default function LandingPage() {
                 <div className="group relative h-full rounded-xl border border-border bg-card p-7 transition-colors hover:border-lime-400/30">
                   <div className="flex items-baseline justify-between">
                     <span
-                      className={cn(MONO, "text-3xl font-bold text-lime-300/80")}
+                      className={cn(
+                        MONO,
+                        "text-3xl font-bold text-lime-300/80",
+                      )}
                     >
                       {n}
                     </span>
@@ -719,34 +833,38 @@ export default function LandingPage() {
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <Reveal>
           <div className="relative overflow-hidden rounded-xl border border-lime-400/30 bg-card px-8 py-16 text-center sm:px-16">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_bottom,rgba(163,230,53,0.12),transparent_60%)]"
-          />
-          <p
-            className={cn(
-              MONO,
-              "text-xs uppercase tracking-[0.16em] text-lime-300",
-            )}
-          >
-            {session?.user ? "Your links, on tap" : "Free. Open. Real-time."}
-          </p>
-          <h2 className="mx-auto mt-5 max-w-xl font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Put your links on a live feed.
-          </h2>
-          <div className="mt-8 flex justify-center">
-            <Link
-              href={session?.user ? "/dashboard" : "/register"}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_bottom,rgba(163,230,53,0.12),transparent_60%)]"
+            />
+            <p
               className={cn(
-                buttonVariants({ size: "lg" }),
-                "rounded-lg bg-lime-400 px-8 py-3.5 text-lg font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98]",
+                MONO,
+                "text-xs uppercase tracking-[0.16em] text-lime-300",
               )}
             >
-              {session?.user ? "Open dashboard" : <RollingText>Create account</RollingText>}
-              <ArrowUpRight className="ml-2 size-5" />
-            </Link>
+              {session?.user ? "Your links, on tap" : "Free. Open. Real-time."}
+            </p>
+            <h2 className="mx-auto mt-5 max-w-xl font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              Put your links on a live feed.
+            </h2>
+            <div className="mt-8 flex justify-center">
+              <Link
+                href={session?.user ? "/dashboard" : "/register"}
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "rounded-lg bg-lime-400 px-8 py-3.5 text-lg font-medium text-zinc-950 hover:bg-lime-300 active:scale-[0.98]",
+                )}
+              >
+                {session?.user ? (
+                  <RollingText>Open dashboard</RollingText>
+                ) : (
+                  <RollingText>Create account</RollingText>
+                )}
+                <ArrowUpRight className="ml-2 size-5" />
+              </Link>
+            </div>
           </div>
-        </div>
         </Reveal>
       </section>
 
@@ -754,14 +872,7 @@ export default function LandingPage() {
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-10 sm:flex-row sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
-            <span
-              className={cn(
-                MONO,
-                "flex h-7 items-center rounded border border-lime-400/40 bg-lime-400/10 px-2 text-[11px] font-semibold text-lime-300",
-              )}
-            >
-              s/fn
-            </span>
+            <LogoIcon concept="monogram" size="xs" animated={false} />
             <span className={cn(MONO, "text-sm text-muted-foreground")}>
               © 2026 shortlytics
             </span>
