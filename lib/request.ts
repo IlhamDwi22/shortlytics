@@ -8,12 +8,15 @@
 
 /**
  * Single source of truth for the application's configured domain.
- * Returns the trimmed `APP_DOMAIN` env value, or `null` when unset so callers
- * can apply their own (server-only) fallback.
+ * `NEXT_PUBLIC_APP_DOMAIN` is the canonical var (used by both client & server),
+ * ensuring the value can never drift between them. The legacy `APP_DOMAIN`
+ * is kept as a silent fallback for backward-compatible configs.
  */
 export function getAppDomain(): string | null {
-  const appDomain = process.env.APP_DOMAIN?.trim();
-  return appDomain && appDomain.length > 0 ? appDomain : null;
+  const domain =
+    process.env.NEXT_PUBLIC_APP_DOMAIN?.trim() ||
+    process.env.APP_DOMAIN?.trim();
+  return domain && domain.length > 0 ? domain : null;
 }
 
 export function getBaseUrl(req: Request): string {
