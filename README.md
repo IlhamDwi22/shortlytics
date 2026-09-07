@@ -38,3 +38,6 @@ npx tsx scripts/test-core-security.ts
 npx tsx scripts/test-fase5-engine.ts
 npx tsx scripts/test-fase6-analytics.ts
 ```
+
+## Link
+Klik untuk kunjungi website Shortlytics: https://shortlytics.ilhamds.my.id/
