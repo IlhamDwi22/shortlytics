@@ -17,21 +17,12 @@ const MAX_CREATE_ATTEMPTS = 3;
  */
 export async function POST(req: Request) {
   try {
-    // 1. Authentication Check
+    // 1. Optional Authentication Check (guest shortening allowed)
     const userId = await requireUser();
-    if (!userId) {
-      return NextResponse.json(
-        {
-          error: "UNAUTHORIZED",
-          message: "You must be signed in to create a short URL.",
-        },
-        { status: 401 }
-      );
-    }
 
-    // 2. Rate Limiting Check (20 req / min)
+    // 2. Rate Limiting Check (20 req / min per user:IP or guest:IP)
     const ip = extractClientIp(req);
-    const rateLimitIdentifier = `${userId}:${ip}`;
+    const rateLimitIdentifier = userId ? `${userId}:${ip}` : `guest:${ip}`;
     const { success, reset } = await createLinkRateLimit.limit(rateLimitIdentifier);
 
     if (!success) {

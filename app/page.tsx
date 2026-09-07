@@ -78,6 +78,7 @@ export default function LandingPage() {
     "idle" | "loading" | "done" | "error"
   >("idle");
   const [shortUrl, setShortUrl] = React.useState("");
+  const [errorMessage, setErrorMessage] = React.useState("");
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { copied, copy: copyClipboard } = useCopy();
 
@@ -90,18 +91,38 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (state === "loading") return;
     if (!url.trim()) {
+      setErrorMessage("Invalid URL — must start with http:// or https://");
       setState("error");
       return;
     }
     setState("loading");
-    setTimeout(() => {
-      setShortUrl(`https://${APP_DOMAIN}/aZ3kP9`);
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ originalUrl: url.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMessage(data.message || "Failed to generate short link.");
+        setState("error");
+        return;
+      }
+
+      setShortUrl(data.shortUrl);
       setState("done");
-    }, 650);
+    } catch {
+      setErrorMessage("Failed to connect to server. Please try again.");
+      setState("error");
+    }
   };
 
   const copy = async () => {
@@ -431,22 +452,29 @@ export default function LandingPage() {
                 )}
                 {state === "error" && (
                   <p className={cn(MONO, "text-xs text-red-400")}>
-                    Invalid URL — must start with http:// or https://
+                    {errorMessage || "Invalid URL — must start with http:// or https://"}
                   </p>
                 )}
                 {state === "done" && (
                   <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={cn(MONO, "truncate text-sm text-lime-300")}
+                    <a
+                      href={shortUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        MONO,
+                        "inline-flex min-w-0 items-center gap-1 truncate text-sm text-lime-300 hover:underline",
+                      )}
                     >
-                      {shortUrl}
-                    </span>
+                      <span className="truncate">{shortUrl}</span>
+                      <ArrowUpRight className="size-3.5 shrink-0" />
+                    </a>
                     <Button
                       type="button"
                       onClick={copy}
                       size="sm"
                       variant="ghost"
-                      className="rounded text-xs uppercase tracking-wide text-muted-foreground hover:bg-muted hover:text-lime-300"
+                      className="shrink-0 rounded text-xs uppercase tracking-wide text-muted-foreground hover:bg-muted hover:text-lime-300"
                     >
                       {copied ? (
                         <Check className="mr-1 size-4 text-lime-400" />

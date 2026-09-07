@@ -24,8 +24,8 @@ model User {
 
 model Link {
   id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   originalUrl String
   shortCode   String    @unique // base62, e.g. "aZ3kP9"
