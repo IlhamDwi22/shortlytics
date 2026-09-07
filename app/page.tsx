@@ -46,18 +46,24 @@ const DEVICES = [
   { label: "Tablet", pct: 5, icon: Tablet },
 ];
 
-function useTickingCounter(initial: number, stepMin = 0, stepMax = 3) {
+function useTickingCounter(
+  initial: number,
+  stepMin = 0,
+  stepMax = 3,
+  intervalMs = 2800,
+) {
   const [value, setValue] = React.useState(initial);
   React.useEffect(() => {
     const id = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
       setValue((v) => {
         const delta =
           Math.floor(Math.random() * (stepMax - stepMin + 1)) + stepMin;
         return v + delta;
       });
-    }, 1800);
+    }, intervalMs);
     return () => clearInterval(id);
-  }, [stepMax, stepMin]);
+  }, [stepMax, stepMin, intervalMs]);
   return value;
 }
 
@@ -126,7 +132,7 @@ export default function LandingPage() {
             className={cn(
               "pointer-events-auto flex w-full items-center justify-between transition-all duration-300 ease-out",
               isScrolled
-                ? "h-14 sm:h-16 px-5 sm:px-7 rounded-2xl bg-zinc-950/60 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/80"
+                ? "h-14 sm:h-16 px-4 sm:px-7 rounded-xl sm:rounded-2xl bg-zinc-950/85 backdrop-blur-md border border-white/10 shadow-xl shadow-black/50"
                 : "h-16 sm:h-20 px-0 bg-transparent border-transparent shadow-none rounded-none",
             )}
           >
@@ -287,11 +293,10 @@ export default function LandingPage() {
                 <motion.span
                   className="inline-block"
                   variants={{
-                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    hidden: { opacity: 0, y: 12 },
                     visible: {
                       opacity: 1,
-                      x: 0,
-                      filter: "blur(0px)",
+                      y: 0,
                       transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
                     },
                   }}
@@ -302,11 +307,10 @@ export default function LandingPage() {
                 <motion.span
                   className="inline-block"
                   variants={{
-                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    hidden: { opacity: 0, y: 12 },
                     visible: {
                       opacity: 1,
-                      x: 0,
-                      filter: "blur(0px)",
+                      y: 0,
                       transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
                     },
                   }}
@@ -317,11 +321,10 @@ export default function LandingPage() {
                 <motion.span
                   className="mt-1 inline-block"
                   variants={{
-                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    hidden: { opacity: 0, y: 12 },
                     visible: {
                       opacity: 1,
-                      x: 0,
-                      filter: "blur(0px)",
+                      y: 0,
                       transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
                     },
                   }}
@@ -332,11 +335,10 @@ export default function LandingPage() {
                 <motion.span
                   className="inline-block"
                   variants={{
-                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    hidden: { opacity: 0, y: 12 },
                     visible: {
                       opacity: 1,
-                      x: 0,
-                      filter: "blur(0px)",
+                      y: 0,
                       transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
                     },
                   }}
@@ -345,13 +347,12 @@ export default function LandingPage() {
                 </motion.span>
                 <span className="inline-block">&nbsp;</span>
                 <motion.span
-                  className="inline-block text-lime-300 text-glow-lime"
+                  className="mt-1 inline-block text-lime-300 text-glow-lime"
                   variants={{
-                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    hidden: { opacity: 0, y: 12 },
                     visible: {
                       opacity: 1,
-                      x: 0,
-                      filter: "blur(0px)",
+                      y: 0,
                       transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
                     },
                   }}
@@ -360,13 +361,12 @@ export default function LandingPage() {
                 </motion.span>
                 <span className="inline-block">&nbsp;</span>
                 <motion.span
-                  className="inline-block text-lime-300 text-glow-lime"
+                  className="mt-1 inline-block text-lime-300 text-glow-lime"
                   variants={{
-                    hidden: { opacity: 0, x: 20, filter: "blur(4px)" },
+                    hidden: { opacity: 0, y: 12 },
                     visible: {
                       opacity: 1,
-                      x: 0,
-                      filter: "blur(0px)",
+                      y: 0,
                       transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
                     },
                   }}
@@ -489,13 +489,16 @@ export default function LandingPage() {
           <Reveal delay={0.08} y={16} id="analytics" className="lg:col-span-6">
             <figure className="relative rounded-xl border border-border bg-card">
               {/* panel header */}
-              <figcaption className="flex items-center justify-between border-b border-border px-5 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-muted-foreground/40" />
-                  <span className="size-2.5 rounded-full bg-muted-foreground/40" />
-                  <span className="size-2.5 rounded-full bg-muted-foreground/40" />
+              <figcaption className="flex items-center justify-between gap-2.5 border-b border-border px-3.5 py-2.5 sm:px-5 sm:py-3">
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                  <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+                    <span className="size-2 rounded-full bg-muted-foreground/40 sm:size-2.5" />
+                    <span className="size-2 rounded-full bg-muted-foreground/40 sm:size-2.5" />
+                    <span className="size-2 rounded-full bg-muted-foreground/40 sm:size-2.5" />
+                  </div>
                   <span
-                    className={cn(MONO, "ml-2 text-xs text-muted-foreground")}
+                    className={cn(MONO, "truncate text-xs text-muted-foreground")}
+                    title={`${APP_DOMAIN}/analytics`}
                   >
                     {APP_DOMAIN}/analytics
                   </span>
@@ -503,21 +506,21 @@ export default function LandingPage() {
                 <span
                   className={cn(
                     MONO,
-                    "inline-flex items-center gap-1.5 rounded border border-lime-400/30 bg-lime-400/10 px-2.5 py-1 text-[11px] uppercase tracking-wide text-lime-300",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded border border-lime-400/30 bg-lime-400/10 px-2 py-0.5 text-[11px] uppercase tracking-wide text-lime-300 sm:px-2.5 sm:py-1",
                   )}
                 >
-                  <LiveDot className="mr-1.5" />
+                  <LiveDot />
                   live
                 </span>
               </figcaption>
 
               {/* live counters */}
-              <div className="grid grid-cols-2 divide-x divide-y divide-border/30">
-                <div className="p-5">
+              <div className="grid grid-cols-2 divide-x divide-border/30">
+                <div className="p-4 sm:p-5">
                   <span
                     className={cn(
                       MONO,
-                      "text-xs uppercase tracking-[0.14em] text-muted-foreground",
+                      "text-[11px] uppercase tracking-[0.14em] text-muted-foreground sm:text-xs",
                     )}
                   >
                     total clicks
@@ -525,17 +528,17 @@ export default function LandingPage() {
                   <div
                     className={cn(
                       MONO,
-                      "mt-1.5 text-4xl font-semibold text-foreground tabular-nums sm:text-5xl",
+                      "mt-1.5 text-3xl font-semibold text-foreground tabular-nums sm:text-5xl",
                     )}
                   >
                     <CountUp to={totalClicks} />
                   </div>
                 </div>
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <span
                     className={cn(
                       MONO,
-                      "text-xs uppercase tracking-[0.14em] text-muted-foreground",
+                      "text-[11px] uppercase tracking-[0.14em] text-muted-foreground sm:text-xs",
                     )}
                   >
                     today
@@ -543,7 +546,7 @@ export default function LandingPage() {
                   <div
                     className={cn(
                       MONO,
-                      "mt-1.5 text-4xl font-semibold text-lime-300 tabular-nums sm:text-5xl",
+                      "mt-1.5 text-3xl font-semibold text-lime-300 tabular-nums sm:text-5xl",
                     )}
                   >
                     <CountUp to={clicksToday} prefix="+" />
@@ -552,27 +555,27 @@ export default function LandingPage() {
               </div>
 
               {/* referrer feed */}
-              <div className="border-t border-border px-5 py-4">
+              <div className="border-t border-border px-4 py-3.5 sm:px-5 sm:py-4">
                 <span
                   className={cn(
                     MONO,
-                    "text-xs uppercase tracking-[0.14em] text-zinc-500",
+                    "text-[11px] uppercase tracking-[0.14em] text-zinc-500 sm:text-xs",
                   )}
                 >
                   top referrers
                 </span>
                 <ul className="mt-3 space-y-2.5">
                   {REFERRERS.map((r) => (
-                    <li key={r.label} className="flex items-center gap-3">
+                    <li key={r.label} className="flex items-center gap-2.5 sm:gap-3">
                       <span
                         className={cn(
                           MONO,
-                          "w-24 shrink-0 truncate text-sm text-foreground/70 sm:w-32",
+                          "w-24 shrink-0 truncate text-xs text-foreground/70 sm:w-32 sm:text-sm",
                         )}
                       >
                         {r.label}
                       </span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted/50">
+                      <div className="h-1.5 sm:h-2 flex-1 overflow-hidden rounded-full bg-muted/50">
                         <motion.div
                           className="h-full rounded-full bg-muted-foreground/50"
                           initial={{ width: 0 }}
@@ -587,29 +590,29 @@ export default function LandingPage() {
                       <span
                         className={cn(
                           MONO,
-                          "w-10 text-right text-sm tabular-nums text-muted-foreground",
+                          "w-9 sm:w-10 text-right text-xs sm:text-sm tabular-nums text-muted-foreground",
                         )}
                       >
                         {r.pct}%
                       </span>
-                      {r.live && <LiveDot className="h-2.5 w-2.5" />}
+                      {r.live && <LiveDot className="h-2 w-2 sm:h-2.5 sm:w-2.5" />}
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* device bars */}
-              <div className="grid grid-cols-2 gap-px border-t border-border bg-muted/30 sm:grid-cols-3">
+              <div className="grid grid-cols-3 gap-px border-t border-border bg-muted/30">
                 {DEVICES.map((d) => (
-                  <div key={d.label} className="bg-card px-5 py-4">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <d.icon className="size-4 text-lime-300" />
-                      {d.label}
+                  <div key={d.label} className="bg-card px-3 py-3 sm:px-5 sm:py-4">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-muted-foreground">
+                      <d.icon className="size-3.5 sm:size-4 text-lime-300 shrink-0" />
+                      <span className="truncate">{d.label}</span>
                     </div>
                     <div
                       className={cn(
                         MONO,
-                        "mt-1.5 text-xl font-semibold text-foreground tabular-nums",
+                        "mt-1 text-lg sm:text-xl font-semibold text-foreground tabular-nums",
                       )}
                     >
                       {d.pct}%

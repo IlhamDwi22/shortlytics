@@ -1,8 +1,31 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
 import { cn } from "@/lib/utils";
+
+function subscribe(callback: () => void) {
+  window.addEventListener("resize", callback, { passive: true });
+  return () => window.removeEventListener("resize", callback);
+}
+
+function getSnapshot() {
+  if (typeof window === "undefined") return true;
+  const isNarrow = window.innerWidth < 768;
+  const prefersReduced =
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  const isTouch =
+    window.matchMedia?.("(pointer: coarse)").matches ?? false;
+  const isMobileAgent =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
+      navigator.userAgent,
+    );
+  return isNarrow || prefersReduced || (isTouch && isMobileAgent);
+}
+
+function getServerSnapshot() {
+  return true;
+}
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -138,6 +161,11 @@ export default function Aurora(props: AuroraProps) {
     lightMode = false,
     className,
   } = props;
+  const isMobileOrReduced = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
   const propsRef = useRef<AuroraProps>(props);
   const ctnDom = useRef<HTMLDivElement>(null);
 
@@ -146,6 +174,8 @@ export default function Aurora(props: AuroraProps) {
   });
 
   useEffect(() => {
+    if (isMobileOrReduced) return;
+
     const ctn = ctnDom.current;
     if (!ctn) return;
 
@@ -154,8 +184,11 @@ export default function Aurora(props: AuroraProps) {
       renderer = new Renderer({
         alpha: true,
         premultipliedAlpha: true,
-        antialias: true,
-        dpr: Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 2),
+        antialias: false, // false is faster and perceptually identical for ambient glow
+        dpr: Math.min(
+          typeof window !== "undefined" ? window.devicePixelRatio : 1,
+          1.5,
+        ),
       });
     } catch {
       return;
@@ -193,19 +226,34 @@ export default function Aurora(props: AuroraProps) {
     });
     resizeObserver.observe(ctn);
 
+    // Pause WebGL rendering loop when not visible in viewport to save CPU/GPU
+    let isVisible = true;
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          isVisible = entry.isIntersecting;
+        }
+      },
+      { rootMargin: "120px" },
+    );
+    intersectionObserver.observe(ctn);
+
     const geometry = new Triangle(gl);
     if (geometry.attributes.uv) {
       delete geometry.attributes.uv;
     }
 
-    const activeStops = colorStops.length >= 3 ? colorStops : ["#5227FF", "#7cff67", "#5227FF"];
+    const activeStops =
+      colorStops.length >= 3 ? colorStops : ["#5227FF", "#7cff67", "#5227FF"];
     const colorStopsArray = activeStops.slice(0, 3).map((hex) => {
       const c = new Color(hex);
       return [c.r, c.g, c.b];
     });
 
-    const initWidth = ctn.offsetWidth || ctn.clientWidth || (typeof window !== "undefined" ? window.innerWidth : 1200);
-    const initHeight = ctn.offsetHeight || ctn.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 800);
+    const initWidth =
+      ctn.offsetWidth || ctn.clientWidth || (typeof window !== "undefined" ? window.innerWidth : 1200);
+    const initHeight =
+      ctn.offsetHeight || ctn.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 800);
 
     const program: Program | undefined = new Program(gl, {
       vertex: VERT,
@@ -226,6 +274,8 @@ export default function Aurora(props: AuroraProps) {
     let animateId = 0;
     const update = (t: number) => {
       animateId = requestAnimationFrame(update);
+      if (!isVisible) return; // Skip rendering calculation when scrolled out of view
+
       const { time = t * 0.01, speed = 1.0 } = propsRef.current;
       if (program && ctn) {
         const curW = ctn.offsetWidth || ctn.clientWidth;
@@ -256,12 +306,42 @@ export default function Aurora(props: AuroraProps) {
       cancelAnimationFrame(animateId);
       window.removeEventListener("resize", resize);
       resizeObserver.disconnect();
+      intersectionObserver.disconnect();
       if (ctn && gl.canvas.parentNode === ctn) {
         ctn.removeChild(gl.canvas);
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [amplitude, blend, lightMode]);
+  }, [amplitude, blend, colorStops, lightMode, isMobileOrReduced]);
+
+  if (isMobileOrReduced) {
+    return (
+      <div
+        ref={ctnDom}
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-0 w-full h-full overflow-hidden pointer-events-none",
+          className,
+        )}
+      >
+        {/* High-performance CSS-only ambient glow for mobile / reduced motion (zero GPU/WebGL overhead) */}
+        <div
+          className="absolute -top-[10%] -left-[15%] h-[75%] w-[130%] opacity-80 blur-3xl transform-gpu"
+          style={{
+            background:
+              "radial-gradient(ellipse 65% 55% at 35% 25%, rgba(124, 255, 103, 0.18) 0%, rgba(180, 151, 207, 0.12) 40%, rgba(82, 39, 255, 0.08) 70%, transparent 100%)",
+          }}
+        />
+        <div
+          className="absolute top-[20%] -right-[20%] h-[60%] w-[90%] opacity-70 blur-3xl transform-gpu"
+          style={{
+            background:
+              "radial-gradient(circle 50% at 65% 35%, rgba(82, 39, 255, 0.14) 0%, rgba(124, 255, 103, 0.08) 50%, transparent 80%)",
+          }}
+        />
+      </div>
+    );
+  }
 
   return <div ref={ctnDom} className={cn("absolute inset-0 w-full h-full overflow-hidden", className)} />;
 }
